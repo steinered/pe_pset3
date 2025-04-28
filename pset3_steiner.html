@@ -364,14 +364,63 @@ employment and welfare receipt, this time using a
 difference-in-differences approach. All data and documentation can be
 found on Canvas under Problem Set 1.</p>
 <ol style="list-style-type: decimal">
-<li><p>Find the means of quarterly employment for each quarter from 10
+<li>Find the means of quarterly employment for each quarter from 10
 quarters prior to RA to 19 quarters following RA (recall from the
 documentation that the quarter of random assignment, which would
 naturally be designated as quarter 0, is actually denoted as quarter 1).
 Tabulate the number of observations that contribute to each of those
 means. What is the longest pre- period that you could analyze, ensuring
 that you have data for everyone in the sample? The longest post-period?
-Refer to this as the balanced sample period.</p></li>
+Refer to this as the balanced sample period.</li>
+</ol>
+<pre class="r"><code># Find the means of quarterly employment for each quarter
+ftp_merged %&gt;% 
+  # from 10 quarters prior to RA to 19 quarters following RA
+  # remember that empq20 = quarter 19 because RA occurs in quarter 1
+  select(c(&#39;emppq10&#39;:&#39;empq17&#39;, &#39;empq18&#39;:&#39;empq20&#39;)) %&gt;% 
+  # calculate the mean across selected columns
+  summarise(across(everything(),
+    # using list as we&#39;re doing multiple functions
+    list(qemp_mean = ~ mean(.x, na.rm = TRUE),
+         # and tabulating n used in means
+         valid_n = ~ sum(!is.na(.x))
+         )
+    )) %&gt;% 
+  # make table readable
+  pivot_longer(cols = everything(),
+               # split quarter, mean, and n
+               names_to = c(&quot;quarter&quot;, &quot;.value&quot;),
+               # (.*) puts first part of string into quarter column
+               # qemp_mean|valid_n selects values to pull for each new mean/n col
+               names_pattern = &quot;(.*)_(qemp_mean|valid_n)&quot;
+               )</code></pre>
+<pre><code>## # A tibble: 30 × 3
+##    quarter qemp_mean valid_n
+##    &lt;chr&gt;       &lt;dbl&gt;   &lt;int&gt;
+##  1 emppq10    0         1149
+##  2 emppq9     0.0688    1149
+##  3 emppq8     0.163     1149
+##  4 emppq7     0.238     1149
+##  5 emppq6     0.250     1149
+##  6 emppq5     0.249     1149
+##  7 emppq4     0.242     1149
+##  8 emppq3     0.249     1149
+##  9 emppq2     0.262     1149
+## 10 emppq1     0.303     1149
+## # ℹ 20 more rows</code></pre>
+<pre class="r"><code># extra code for confirming data
+# ftp_merged %&gt;% 
+#   # from 10 quarters prior to RA to 19 quarters following RA
+#   # remember that empq20 = quarter 19 because RA occurs in quarter 1
+#   select(c(&#39;emppq10&#39;:&#39;empq17&#39;, &#39;empq18&#39;:&#39;empq20&#39;)) %&gt;% 
+#   colMeans(., na.rm = TRUE)
+
+# ftp_merged %&gt;% 
+#   # from 10 quarters prior to RA to 19 quarters following RA
+#   # remember that empq20 = quarter 19 because RA occurs in quarter 1
+#   select(c(&#39;emppq10&#39;:&#39;empq17&#39;, &#39;empq18&#39;:&#39;empq20&#39;)) %&gt;%
+#   summarise(across(everything(), ~ sum(is.na(.x))))</code></pre>
+<ol start="2" style="list-style-type: decimal">
 <li><p>Reconfigure the data so you have one record per person per
 quarter. Compute mean employment rates by treatment status, before and
 after treatment. Treatment status is TLyes; the date of random

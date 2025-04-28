@@ -21,8 +21,8 @@ found on Canvas under Problem Set 1.
 library("haven")
 library("tidyverse")
 library("magrittr")
-# library('knitr')
-# library('kableExtra')
+library('knitr')
+library('kableExtra')
 # library("stringr")
 # library("stargazer")
 # library("ivreg")
@@ -59,20 +59,57 @@ ftp_merged <-
   filter(!is.na(TLyes))
 ```
 
-test
-1. Find the means of quarterly employment for each quarter from 10
+1.  *Find the means of quarterly employment for each quarter from 10
     quarters prior to RA to 19 quarters following RA (recall from the
     documentation that the quarter of random assignment, which would
     naturally be designated as quarter 0, is actually denoted as quarter
     1). Tabulate the number of observations that contribute to each of
-    those means. What is the longest pre- period that you could analyze,
-    ensuring that you have data for everyone in the sample? The longest
-    post-period? Refer to this as the balanced sample period.
-    
-```{r}
+    those means.*
+
+```{r q1 mean employment}
+# Find the means of quarterly employment for each quarter
+ftp_merged %>% 
+  # from 10 quarters prior to RA to 19 quarters following RA
+  # remember that empq20 = quarter 19 because RA occurs in quarter 1
+  select(c('emppq10':'empq17', 'empq18':'empq20')) %>% 
+  # calculate the mean across selected columns
+  summarise(across(everything(),
+    # using list as we're doing multiple functions
+    list(qemp_mean = ~ mean(.x, na.rm = TRUE),
+         # and tabulating n used in means
+         valid_n = ~ sum(!is.na(.x))
+         )
+    )) %>% 
+  # make table readable
+  pivot_longer(cols = everything(),
+               # split quarter, mean, and n
+               names_to = c("quarter", ".value"),
+               # (.*) puts first part of string into quarter column
+               # qemp_mean|valid_n selects values to pull for each new mean/n col
+               names_pattern = "(.*)_(qemp_mean|valid_n)"
+               ) %>% 
+  # and pretty
+  kable(col.names = c("Quarter", "Mean", "N"), caption = "Quarterly Employment Means") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"))
+
+# extra code for confirming data
+# ftp_merged %>% 
+#   # from 10 quarters prior to RA to 19 quarters following RA
+#   # remember that empq20 = quarter 19 because RA occurs in quarter 1
+#   select(c('emppq10':'empq17', 'empq18':'empq20')) %>% 
+#   colMeans(., na.rm = TRUE)
+
+# ftp_merged %>% 
+#   # from 10 quarters prior to RA to 19 quarters following RA
+#   # remember that empq20 = quarter 19 because RA occurs in quarter 1
+#   select(c('emppq10':'empq17', 'empq18':'empq20')) %>%
+#   summarise(across(everything(), ~ sum(is.na(.x))))
 
 ```
-    
+
+*What is the longest pre-period that you could analyze, ensuring that
+you have data for everyone in the sample? The longest post-period? Refer
+to this as the balanced sample period.*
 
 2.  Reconfigure the data so you have one record per person per quarter.
     Compute mean employment rates by treatment status, before and after
