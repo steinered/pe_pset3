@@ -59,7 +59,7 @@ ftp_merged <-
   filter(!is.na(TLyes))
 ```
 
-
+test
 1. Find the means of quarterly employment for each quarter from 10
     quarters prior to RA to 19 quarters following RA (recall from the
     documentation that the quarter of random assignment, which would
