@@ -1,0 +1,142 @@
+---
+title: "pset3_steiner"
+author: "erika steiner"
+date: "`r Sys.Date()`"
+output: html_document
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+In this problem set, we continue analyzing the FTP program, again
+interpreting beliefs about the time limit as the treatment variable. The
+goal will be to estimate the effect of a perceived time limit on
+employment and welfare receipt, this time using a
+difference-in-differences approach. All data and documentation can be
+found on Canvas under Problem Set 1.
+
+```{r setup, include=FALSE}
+
+# load packages
+library("haven")
+library("tidyverse")
+library("magrittr")
+# library('knitr')
+# library('kableExtra')
+# library("stringr")
+# library("stargazer")
+# library("ivreg")
+
+# get rid of scientific notation
+options(scipen=999)
+```
+
+```{r data set up, echo = FALSE}
+# import admin data
+ftp_ar <- read_dta("ftp_ar.dta")
+# import survey data
+ftp_srv <- read_dta("ftp_srv.dta")
+
+# create merged data set
+# add treatment dummy equal to perceived subject to time limit
+ftp_merged <- 
+  # admin data set
+  ftp_ar %>% 
+  # filter out ftp_ar participants who did not participate in the survey
+  # using sampleid per data documentation page 13
+  filter(.$sampleid %in% (ftp_srv$sampleid)) %>% 
+  # add new treatment dummy TLyes
+  mutate(TLyes = 
+    case_when(
+      # 1 if believed subject to time limit
+      fmi2 == 1 ~ 1,
+      # 0 if did not or were not sure if subject to time limit
+      fmi2 == 2 ~ 0,
+      fmi2 == 8 ~ 0
+    )
+  ) %>% 
+  # remove rows where TLyes = NA
+  filter(!is.na(TLyes))
+```
+
+
+1. Find the means of quarterly employment for each quarter from 10
+    quarters prior to RA to 19 quarters following RA (recall from the
+    documentation that the quarter of random assignment, which would
+    naturally be designated as quarter 0, is actually denoted as quarter
+    1). Tabulate the number of observations that contribute to each of
+    those means. What is the longest pre- period that you could analyze,
+    ensuring that you have data for everyone in the sample? The longest
+    post-period? Refer to this as the balanced sample period.
+    
+```{r}
+
+```
+    
+
+2.  Reconfigure the data so you have one record per person per quarter.
+    Compute mean employment rates by treatment status, before and after
+    treatment. Treatment status is TLyes; the date of random assignment
+    divides the sample period into before and after (consider the period
+    of random assignment itself to be “after”). Were employment rates
+    similar between the treatment and control groups prior to treatment?
+
+3.  
+
+    (a) Run a DD regression. The dependent variable should be quarterly
+        employment status, and the explanatory variables should include
+        person dummies, quarter dummies, and an interaction between
+        TLyes and a post-treatment dummy. Be sure to restrict attention
+        to the balanced sample period.
+
+<!-- -->
+
+(b) Now run the same regression, clustering the standard errors by
+    sampleid. Explain why the standard errors change the way they do.
+    Which standard errors should you report?
+(c) How do you interpret the coefficient on the interaction between
+    TLyes and the post- treatment dummy?
+
+<!-- -->
+
+4.  
+
+    (a) Construct a test for parallel pre-treatment trends. Do you
+        reject the null hypothesis?
+
+<!-- -->
+
+(b) Plot the relevant results.
+(c) Do your results imply that your estimator identifies the ATT?
+
+<!-- -->
+
+5.  Now implement the event-study estimator, that is, estimate
+    period-specific treatment effects that vary freely over the
+    post-treatment period. Plot the estimates. Are the period-specific
+    estimates significant? If not, does this concern you? Explain.
+6.  Compare the mean of the period-specific treatment effects from
+    question 5 to the constant post-treatment effect from question 3.
+    Are they similar? How would you test the hypothesis that they are
+    the same?
+7.  So far, we have acted as if all the treatment observations were
+    treated at the same calendar time. In fact, treatment was assigned
+    over a period of four quarters, as can be seen by tabulating the
+    variable rarelqt. Explain briefly why this potentially poses a
+    problem for the analysis above.
+8.  To see how important this issue is in practice, re-estimate your
+    event-study model using the Callaway-Sant’anna method. Note that
+    rarelqt = 1 corresponds to 1994.II, that is, April-June
+9.  Start by creating a variable showing which observations are first
+    treated in each calendar quarter. Call it racalqt. Tabulate it and
+    comment on the share of observations that is first assigned to
+    treatment in each quarter.
+10. Calculate ATT(g, t) for each value of g and t = 1994.II to 1997.II.
+    How similar are the estimated effects of treatment for the four
+    groups?
+11. Now calculate and plot period-specific treatment effects in units of
+    time relative to the treatment quarter, also known as elapsed time
+    and denoted by e. Do this for e=1,...,8.
+12. Compare these estimates to those you estimated in question 5. Would
+    you say they are mostly similar, or mostly different? Pay particular
+    attention to the estimates for e=1 to 4.
