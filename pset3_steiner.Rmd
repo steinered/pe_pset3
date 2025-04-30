@@ -111,27 +111,89 @@ ftp_merged %>%
 you have data for everyone in the sample? The longest post-period? Refer
 to this as the balanced sample period.*
 
+There are 1149 people who responded to the survey question about time
+limits. All pre-randomization quarters include 1149 non-NA observations,
+as do all post-randomization quarters except for Quarter 19 (empq20).The
+balanced sample period is thus from 10 quarters prior to RA to 18
+quarters following RA.
+
 2.  Reconfigure the data so you have one record per person per quarter.
     Compute mean employment rates by treatment status, before and after
     treatment. Treatment status is TLyes; the date of random assignment
     divides the sample period into before and after (consider the period
-    of random assignment itself to be “after”). Were employment rates
-    similar between the treatment and control groups prior to treatment?
+    of random assignment itself to be “after”).
 
-3.  
+```{r q2 mean}
+# reconfigure the data so you have one record per person per quarter
+# create a balanced sample period (remove empq20)
 
-    (a) Run a DD regression. The dependent variable should be quarterly
+quarter_levels <- c("emppq10", "emppq9", "emppq8", "emppq7", "emppq6", "emppq5", "emppq4", "emppq3", "emppq2", "emppq1", "empq1", "empq2", "empq3", "empq4", "empq5", "empq6", "empq7", "empq8", "empq9", "empq10", "empq11", "empq12", "empq13", "empq14", "empq15", "empq16", "empq17", "empq18", "empq19")
+
+qemp_rates <- ftp_merged %>% 
+  # select columns needed for analyses, such as treatment status
+  select(c("TLyes", 
+           # employment quarters for balanced sample period only
+           'emppq10':'empq17', 'empq18':'empq19')
+         ) %>% 
+  # pivot longer for easier manipulation
+  pivot_longer(cols = -TLyes,
+               names_to = "quarter",
+               values_to = "employment") %>% 
+  # convert quarter to factor for better ordering
+  # group by treatment status and quarter
+  group_by(TLyes, quarter) %>% 
+  # calculate means for each treatment group and quarter
+  summarise(mean = mean(employment, na.rm = TRUE),
+            n = sum(!is.na(employment)),
+            # ungroup
+            .groups = "drop") %>% 
+  # make table readable
+  pivot_wider(names_from = TLyes,
+              values_from = c(mean, n)) 
+
+qemp_rates %>% 
+  # factor quarters for ordering
+  mutate(quarter = factor(quarter, levels = quarter_levels)) %>% 
+  # mutate(
+  #   quarter = str_replace(quarter, "emppq", "before-rand quarter "),
+  #   quarter = str_replace(quarter, "empq", "post-rand quarter "),
+  #   ) %>%
+  arrange(quarter) %>% 
+  kable(col.names = c("Quarter", "Control Mean", "Treatment Mean", "Control N", "Treatment N"), 
+        caption = "Quarterly Employment by Treatment Status") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"))
+
+
+```
+
+*Were employment rates similar between the treatment and control groups
+prior to treatment?* Prior to treatment (emppq10:emppq1), the employment
+rates between the treatment and control groups are similar.
+
+```{r}
+
+qemp_rates %>% 
+  filter(quarter %in% c("emppq10", "emppq9", "emppq8", "emppq7", "emppq6", "emppq5", "emppq4", "emppq3", "emppq2", "emppq1")) %>% 
+  select(mean_0, mean_1) %>% 
+  corr()
+  
+  ggplot(aes(x = mean_0, y = mean_1)) +
+  geom_point() +
+  geom_smooth(method = lm)
+```
+
+3.  (a) Run a DD regression. The dependent variable should be quarterly
         employment status, and the explanatory variables should include
         person dummies, quarter dummies, and an interaction between
         TLyes and a post-treatment dummy. Be sure to restrict attention
         to the balanced sample period.
+  
 
-<!-- -->
-
-(b) Now run the same regression, clustering the standard errors by
+3. (b) Now run the same regression, clustering the standard errors by
     sampleid. Explain why the standard errors change the way they do.
     Which standard errors should you report?
-(c) How do you interpret the coefficient on the interaction between
+
+3. (c) How do you interpret the coefficient on the interaction between
     TLyes and the post- treatment dummy?
 
 <!-- -->
