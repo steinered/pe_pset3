@@ -31,6 +31,9 @@ library("plm")
 
 # get rid of scientific notation
 options(scipen=999)
+
+# don't print code
+knitr::opts_chunk$set(echo = FALSE)
 ```
 
 ```{r data set up, echo = FALSE}
@@ -292,12 +295,46 @@ treatment, were 5.6 percentage points more likely to be employed than
 non-treated individuals in the same time period. The p-value of 0.002
 (\>0.01) suggests that this change is highly statistically significant.
 
-4.  *(a) Construct a test for parallel pre-treatment trends. Do you
-    reject the null hypothesis?*
+4.  *(a) Construct a test for parallel pre-treatment trends.*
 
-<!-- -->
+```{r 4a parallel, echo = FALSE}
+dd4a_data <- dd3a_data %>% 
+  # only include pre-treatment period
+  filter(post_dummy == 0) %>% 
+  mutate(quarter = factor(quarter))
+
+model4a <- feols(employment_status ~ (TLyes * quarter) | sampleid + quarter, data = dd4a_data)
+
+summary(model4a)
+
+```
+*Do you reject the null hypothesis?*
+No! The coefficients of the interactions between the time effects and treatment status are not statistically significant. 
 
 (b) Plot the relevant results.
+```{r 4b plot, echo = FALSE}
+# plot quarterly employment rates prior to randomization
+dd4a_data %>% 
+  select(c("TLyes", "quarter", "employment_status")) %>% 
+  mutate(quarter = factor(quarter, levels = quarter_levels)) %>% 
+  group_by(quarter, TLyes) %>% 
+  summarise(mean = mean(employment_status),
+                 sd = sd(employment_status),
+                 se = sd / sqrt(n()), .groups = "keep") %>% 
+  ggplot(aes(x = quarter, y = mean, color = as.factor(TLyes), group = as.factor(TLyes))) +
+  geom_line() +
+  geom_point() +
+  geom_errorbar(aes(ymin = mean - se, ymax = mean + se)) +
+  labs(title = "Mean Employment Pre-Randomization by Treatment Status")
+
+# plot the interaction terms
+
+
+
+```
+
+
+
 (c) Do your results imply that your estimator identifies the ATT?
 
 <!-- -->
