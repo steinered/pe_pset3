@@ -23,6 +23,8 @@ library("tidyverse")
 library("magrittr")
 library('knitr')
 library('kableExtra')
+library("fixest")
+library("plm")
 # library("stringr")
 # library("stargazer")
 # library("ivreg")
@@ -56,7 +58,9 @@ ftp_merged <-
     )
   ) %>% 
   # remove rows where TLyes = NA
-  filter(!is.na(TLyes))
+  filter(!is.na(TLyes)) %>% 
+  # make the employment quarter columns more readable
+  rename(befrand.q01 = emppq1, befrand.q02 = emppq2, befrand.q03 = emppq3, befrand.q04 = emppq4, befrand.q05 = emppq5, befrand.q06 = emppq6, befrand.q07 = emppq7, befrand.q08 = emppq8, befrand.q09 = emppq9, befrand.q10 = emppq10, postrand.q00 = empq1, postrand.q01 = empq2, postrand.q02 = empq3, postrand.q03 = empq4, postrand.q04 = empq5, postrand.q05 = empq6, postrand.q06 = empq7, postrand.q07 = empq8, postrand.q08 = empq9, postrand.q09 = empq10, postrand.q10 = empq11, postrand.q11 = empq12, postrand.q12 = empq13, postrand.q13 = empq14, postrand.q14 = empq15, postrand.q15 = empq16, postrand.q16 = empq17, postrand.q17 = empq18, postrand.q18 = empq19, postrand.q19 = empq20)
 ```
 
 1.  *Find the means of quarterly employment for each quarter from 10
@@ -66,15 +70,15 @@ ftp_merged <-
     1). Tabulate the number of observations that contribute to each of
     those means.*
 
-```{r q1 mean employment}
+```{r q1 mean employment, echo = FALSE}
 # Find the means of quarterly employment for each quarter
 ftp_merged %>% 
   # from 10 quarters prior to RA to 19 quarters following RA
   # remember that empq20 = quarter 19 because RA occurs in quarter 1
-  select(c('emppq10':'empq17', 'empq18':'empq20')) %>% 
+  select(c('befrand.q10':'postrand.q16', 'postrand.q17':'postrand.q19')) %>% 
   # calculate the mean across selected columns
   summarise(across(everything(),
-    # using list as we're doing multiple functions
+    # using list as we're doing multiple functions and want to give custom name to output col
     list(qemp_mean = ~ mean(.x, na.rm = TRUE),
          # and tabulating n used in means
          valid_n = ~ sum(!is.na(.x))
@@ -92,19 +96,6 @@ ftp_merged %>%
   kable(col.names = c("Quarter", "Mean", "N"), caption = "Quarterly Employment Means") %>% 
   kable_styling(bootstrap_options = c("striped", "hover"))
 
-# extra code for confirming data
-# ftp_merged %>% 
-#   # from 10 quarters prior to RA to 19 quarters following RA
-#   # remember that empq20 = quarter 19 because RA occurs in quarter 1
-#   select(c('emppq10':'empq17', 'empq18':'empq20')) %>% 
-#   colMeans(., na.rm = TRUE)
-
-# ftp_merged %>% 
-#   # from 10 quarters prior to RA to 19 quarters following RA
-#   # remember that empq20 = quarter 19 because RA occurs in quarter 1
-#   select(c('emppq10':'empq17', 'empq18':'empq20')) %>%
-#   summarise(across(everything(), ~ sum(is.na(.x))))
-
 ```
 
 *What is the longest pre-period that you could analyze, ensuring that
@@ -113,27 +104,27 @@ to this as the balanced sample period.*
 
 There are 1149 people who responded to the survey question about time
 limits. All pre-randomization quarters include 1149 non-NA observations,
-as do all post-randomization quarters except for Quarter 19 (empq20).The
-balanced sample period is thus from 10 quarters prior to RA to 18
-quarters following RA.
+as do all post-randomization quarters except for Quarter 19
+(postrand.q19 aka empq20).The balanced sample period is thus from 10
+quarters prior to RA to 18 quarters following RA.
 
-2.  Reconfigure the data so you have one record per person per quarter.
+2.  *Reconfigure the data so you have one record per person per quarter.
     Compute mean employment rates by treatment status, before and after
     treatment. Treatment status is TLyes; the date of random assignment
     divides the sample period into before and after (consider the period
-    of random assignment itself to be “after”).
+    of random assignment itself to be “after”).*
 
-```{r q2 mean}
+```{r q2 mean, echo = FALSE}
 # reconfigure the data so you have one record per person per quarter
 # create a balanced sample period (remove empq20)
 
-quarter_levels <- c("emppq10", "emppq9", "emppq8", "emppq7", "emppq6", "emppq5", "emppq4", "emppq3", "emppq2", "emppq1", "empq1", "empq2", "empq3", "empq4", "empq5", "empq6", "empq7", "empq8", "empq9", "empq10", "empq11", "empq12", "empq13", "empq14", "empq15", "empq16", "empq17", "empq18", "empq19")
+quarter_levels <- c("befrand.q10","befrand.q09", "befrand.q08", "befrand.q07", "befrand.q06", "befrand.q05", "befrand.q04", "befrand.q03", "befrand.q02", "befrand.q01", "postrand.q00", "postrand.q01", "postrand.q02", "postrand.q03", "postrand.q04", "postrand.q05", "postrand.q06", "postrand.q07", "postrand.q08", "postrand.q09", "postrand.q10", "postrand.q11", "postrand.q12", "postrand.q13", "postrand.q14", "postrand.q15", "postrand.q16", "postrand.q17", "postrand.q18", "postrand.q19")
 
 qemp_rates <- ftp_merged %>% 
   # select columns needed for analyses, such as treatment status
   select(c("TLyes", 
            # employment quarters for balanced sample period only
-           'emppq10':'empq17', 'empq18':'empq19')
+           'befrand.q10':'postrand.q16', 'postrand.q17':'postrand.q18')
          ) %>% 
   # pivot longer for easier manipulation
   pivot_longer(cols = -TLyes,
@@ -166,42 +157,143 @@ qemp_rates %>%
 
 ```
 
-*Were employment rates similar between the treatment and control groups
-prior to treatment?* Prior to treatment (emppq10:emppq1), the employment
-rates between the treatment and control groups are similar.
+*2 cont.: Were employment rates similar between the treatment and
+control groups prior to treatment?*
 
-```{r}
+Prior to treatment (emppq10:emppq1), the employment rates between the
+treatment and control groups are similar. If we run a two-sample t-test,
+as done below, we cannot reject the null hypothesis that the true
+difference in means between the treatment and control groups is equal to
+0.
 
-qemp_rates %>% 
-  filter(quarter %in% c("emppq10", "emppq9", "emppq8", "emppq7", "emppq6", "emppq5", "emppq4", "emppq3", "emppq2", "emppq1")) %>% 
-  select(mean_0, mean_1) %>% 
-  corr()
-  
-  ggplot(aes(x = mean_0, y = mean_1)) +
-  geom_point() +
-  geom_smooth(method = lm)
+```{r t-testing pre-emp, echo = FALSE}
+ttest_df <- ftp_merged %>% 
+  # select columns needed for analyses, such as treatment status
+  select(c("TLyes", 
+           # employment quarters for pre-randomization only
+           'befrand.q10':'befrand.q01')
+         ) %>% 
+  # pivot longer for easier manipulation
+  pivot_longer(cols = -TLyes,
+               names_to = "quarter",
+               values_to = "employment") %>% 
+  # convert quarter to factor for better ordering
+  # group by treatment status and quarter
+  group_by(TLyes, quarter) %>% 
+  # calculate means for each treatment group and quarter
+  summarise(pre_mean = mean(employment, na.rm = TRUE),
+            n = sum(!is.na(employment)),
+            # ungroup
+            .groups = "drop")
+
+t.test(pre_mean ~ TLyes, data = ttest_df)
 ```
 
-3.  (a) Run a DD regression. The dependent variable should be quarterly
-        employment status, and the explanatory variables should include
-        person dummies, quarter dummies, and an interaction between
-        TLyes and a post-treatment dummy. Be sure to restrict attention
-        to the balanced sample period.
+3.  *(a) Run a DD regression. The dependent variable should be quarterly
+    employment status, and the explanatory variables should include
+    person dummies, quarter dummies, and an interaction between TLyes
+    and a post-treatment dummy. Be sure to restrict attention to the
+    balanced sample period.*
+
+```{r 3a DD regression, echo = FALSE}
+dd3a_data <- ftp_merged %>% 
+  # select relevant columns
+  select(c(
+    # sampleid
+    "sampleid",
+    # treatment status
+    "TLyes",
+    # quarterly employment status for balanced sample period
+    'befrand.q10':'postrand.q16', 'postrand.q17':'postrand.q18'),
+    # columns of person dummies/covariates
+    # method pulled from pset 1
+    where(~ {
+    # the column's label
+    column_label <- attributes(.)$label
+    # is not null AND contains 'cova' (returns TRUE)
+    !is.null(column_label) && str_detect(column_label, 'cova')
+    })) %>% 
+  # reshape to long format so quarter employment values change over time
+  pivot_longer(befrand.q10:postrand.q18,
+    names_to = "quarter",
+    values_to = "employment_status"
+  ) %>% 
+  # add post-treatment dummy
+  mutate(post_dummy = case_when(
+    grepl("bef", quarter) ~ 0,
+    grepl("post", quarter) ~ 1
+  )) 
   
+# run a fixed-effects OLS regression
+# model3a <- lm(employment_status ~ (TLyes * post_dummy) +
+#                 # person dummies
+#                 factor(sampleid) +
+#                 # factor(sampleid) + factor(yr2adc) + factor(yradc) + factor(yr2rec) + factor(yrrec) + factor(yrkrec) + factor(yrearn) + factor(yr2earn) + factor(yrearnsq) + factor(yremp) + factor(yr2emp) + factor(yrkemp) + factor(yr2kemp) + factor(yr2fs) + factor(yrfs) + factor(yr2rfs) + factor(yrrfs) + factor(yrkrfs) 
+#               # quarter dummy
+#               + factor(quarter),
+#               data = dd3a_data)
 
-3. (b) Now run the same regression, clustering the standard errors by
-    sampleid. Explain why the standard errors change the way they do.
-    Which standard errors should you report?
+  # # outcome: employment status
+  # employment_status ~ 
+  #   # regressed on interaction of treatment and post dummy
+  #   (TLyes * post_dummy), model = "within", 
+  # index = c("sampleid", "quarter"),
+  # data = dd3a_data)
 
-3. (c) How do you interpret the coefficient on the interaction between
-    TLyes and the post- treatment dummy?
+# run a fixed-effects OLS regression
+model3a <- feols(employment_status ~ TLyes * post_dummy | sampleid + quarter, data = dd3a_data)
 
-<!-- -->
+summary(model3a, 
+        # specify non-clustered errors as feols auto clusters on sampleid
+        se = "hetero")
+```
 
-4.  
+3.  *(b) Now run the same regression, clustering the standard errors by
+    sampleid*
 
-    (a) Construct a test for parallel pre-treatment trends. Do you
-        reject the null hypothesis?
+```{r 3b standard errors, echo = FALSE}
+model3b <- feols(
+  # outcome: employment status
+  employment_status ~ 
+    # regressed on interaction of treatment and post dummy
+    (TLyes * post_dummy) | 
+    # controlling for sampleid (individual fixed effects, as these are time-invariant for each person) 
+    sampleid 
+  # and controlling for quarter (time-specific fixed effects)
+  + quarter, 
+  data = dd3a_data,
+  # cluster standard errors by sampleid
+  cluster = ~sampleid
+  )
+
+summary(model3b)
+```
+
+*3b cont. Explain why the standard errors change the way they do. Which
+standard errors should you report?*
+
+The standard errors increase (from 0.00849 to 0.018376) from the first
+model (no clustering) to the second (clustered on sampleid). The
+original model examines standard error for each observation of each
+individual, suggesting artificial independence of each standard error,
+even though the standard errors of observations are likely to be
+correlated for each individual (sampleid). Clustering thus allows us to
+control for this correlation by grouping observations by individual,
+creating a more accurate calculation of the standard errors of the
+model. Mathematically, we also know that standard error is inversely
+proportional to the number of samples. By decreasing number of samples
+(grouping by sampleid), we increase standard error.
+
+3.  *(c) How do you interpret the coefficient on the interaction between
+    TLyes and the post- treatment dummy?*
+
+This coefficient (0.056039) says that treated individuals, following
+treatment, were 5.6 percentage points more likely to be employed than
+non-treated individuals in the same time period. The p-value of 0.002
+(\>0.01) suggests that this change is highly statistically significant.
+
+4.  *(a) Construct a test for parallel pre-treatment trends. Do you
+    reject the null hypothesis?*
 
 <!-- -->
 

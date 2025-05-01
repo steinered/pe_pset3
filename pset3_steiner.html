@@ -11,7 +11,7 @@
 
 <meta name="author" content="erika steiner" />
 
-<meta name="date" content="2025-04-29" />
+<meta name="date" content="2025-05-01" />
 
 <title>pset3_steiner</title>
 
@@ -576,7 +576,7 @@ display: none;
 
 <h1 class="title toc-ignore">pset3_steiner</h1>
 <h4 class="author">erika steiner</h4>
-<h4 class="date">2025-04-29</h4>
+<h4 class="date">2025-05-01</h4>
 
 </div>
 
@@ -595,30 +595,6 @@ naturally be designated as quarter 0, is actually denoted as quarter 1).
 Tabulate the number of observations that contribute to each of those
 means.</em></li>
 </ol>
-<pre class="r"><code># Find the means of quarterly employment for each quarter
-ftp_merged %&gt;% 
-  # from 10 quarters prior to RA to 19 quarters following RA
-  # remember that empq20 = quarter 19 because RA occurs in quarter 1
-  select(c(&#39;emppq10&#39;:&#39;empq17&#39;, &#39;empq18&#39;:&#39;empq20&#39;)) %&gt;% 
-  # calculate the mean across selected columns
-  summarise(across(everything(),
-    # using list as we&#39;re doing multiple functions
-    list(qemp_mean = ~ mean(.x, na.rm = TRUE),
-         # and tabulating n used in means
-         valid_n = ~ sum(!is.na(.x))
-         )
-    )) %&gt;% 
-  # make table readable
-  pivot_longer(cols = everything(),
-               # split quarter, mean, and n
-               names_to = c(&quot;quarter&quot;, &quot;.value&quot;),
-               # (.*) puts first part of string into quarter column
-               # qemp_mean|valid_n selects values to pull for each new mean/n col
-               names_pattern = &quot;(.*)_(qemp_mean|valid_n)&quot;
-               ) %&gt;% 
-  # and pretty
-  kable(col.names = c(&quot;Quarter&quot;, &quot;Mean&quot;, &quot;N&quot;), caption = &quot;Quarterly Employment Means&quot;) %&gt;% 
-  kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;))</code></pre>
 <table class="table table-striped table-hover" style="color: black; margin-left: auto; margin-right: auto;">
 <caption>
 Quarterly Employment Means
@@ -639,7 +615,7 @@ N
 <tbody>
 <tr>
 <td style="text-align:left;">
-emppq10
+befrand.q10
 </td>
 <td style="text-align:right;">
 0.0000000
@@ -650,7 +626,7 @@ emppq10
 </tr>
 <tr>
 <td style="text-align:left;">
-emppq9
+befrand.q09
 </td>
 <td style="text-align:right;">
 0.0687554
@@ -661,7 +637,7 @@ emppq9
 </tr>
 <tr>
 <td style="text-align:left;">
-emppq8
+befrand.q08
 </td>
 <td style="text-align:right;">
 0.1627502
@@ -672,7 +648,7 @@ emppq8
 </tr>
 <tr>
 <td style="text-align:left;">
-emppq7
+befrand.q07
 </td>
 <td style="text-align:right;">
 0.2375979
@@ -683,7 +659,7 @@ emppq7
 </tr>
 <tr>
 <td style="text-align:left;">
-emppq6
+befrand.q06
 </td>
 <td style="text-align:right;">
 0.2497824
@@ -694,7 +670,7 @@ emppq6
 </tr>
 <tr>
 <td style="text-align:left;">
-emppq5
+befrand.q05
 </td>
 <td style="text-align:right;">
 0.2489121
@@ -705,7 +681,7 @@ emppq5
 </tr>
 <tr>
 <td style="text-align:left;">
-emppq4
+befrand.q04
 </td>
 <td style="text-align:right;">
 0.2419495
@@ -716,7 +692,7 @@ emppq4
 </tr>
 <tr>
 <td style="text-align:left;">
-emppq3
+befrand.q03
 </td>
 <td style="text-align:right;">
 0.2489121
@@ -727,7 +703,7 @@ emppq3
 </tr>
 <tr>
 <td style="text-align:left;">
-emppq2
+befrand.q02
 </td>
 <td style="text-align:right;">
 0.2619669
@@ -738,7 +714,7 @@ emppq2
 </tr>
 <tr>
 <td style="text-align:left;">
-emppq1
+befrand.q01
 </td>
 <td style="text-align:right;">
 0.3028721
@@ -749,7 +725,7 @@ emppq1
 </tr>
 <tr>
 <td style="text-align:left;">
-empq1
+postrand.q00
 </td>
 <td style="text-align:right;">
 0.3159269
@@ -760,7 +736,7 @@ empq1
 </tr>
 <tr>
 <td style="text-align:left;">
-empq2
+postrand.q01
 </td>
 <td style="text-align:right;">
 0.3472585
@@ -771,7 +747,7 @@ empq2
 </tr>
 <tr>
 <td style="text-align:left;">
-empq3
+postrand.q02
 </td>
 <td style="text-align:right;">
 0.3977372
@@ -782,7 +758,7 @@ empq3
 </tr>
 <tr>
 <td style="text-align:left;">
-empq4
+postrand.q03
 </td>
 <td style="text-align:right;">
 0.4099217
@@ -793,7 +769,7 @@ empq4
 </tr>
 <tr>
 <td style="text-align:left;">
-empq5
+postrand.q04
 </td>
 <td style="text-align:right;">
 0.3951262
@@ -804,7 +780,7 @@ empq5
 </tr>
 <tr>
 <td style="text-align:left;">
-empq6
+postrand.q05
 </td>
 <td style="text-align:right;">
 0.4194952
@@ -815,7 +791,7 @@ empq6
 </tr>
 <tr>
 <td style="text-align:left;">
-empq7
+postrand.q06
 </td>
 <td style="text-align:right;">
 0.4577894
@@ -826,7 +802,7 @@ empq7
 </tr>
 <tr>
 <td style="text-align:left;">
-empq8
+postrand.q07
 </td>
 <td style="text-align:right;">
 0.4873803
@@ -837,7 +813,7 @@ empq8
 </tr>
 <tr>
 <td style="text-align:left;">
-empq9
+postrand.q08
 </td>
 <td style="text-align:right;">
 0.4795474
@@ -848,7 +824,7 @@ empq9
 </tr>
 <tr>
 <td style="text-align:left;">
-empq10
+postrand.q09
 </td>
 <td style="text-align:right;">
 0.4821584
@@ -859,7 +835,7 @@ empq10
 </tr>
 <tr>
 <td style="text-align:left;">
-empq11
+postrand.q10
 </td>
 <td style="text-align:right;">
 0.4847694
@@ -870,7 +846,7 @@ empq11
 </tr>
 <tr>
 <td style="text-align:left;">
-empq12
+postrand.q11
 </td>
 <td style="text-align:right;">
 0.4882507
@@ -881,7 +857,7 @@ empq12
 </tr>
 <tr>
 <td style="text-align:left;">
-empq13
+postrand.q12
 </td>
 <td style="text-align:right;">
 0.4917319
@@ -892,7 +868,7 @@ empq13
 </tr>
 <tr>
 <td style="text-align:left;">
-empq14
+postrand.q13
 </td>
 <td style="text-align:right;">
 0.4986945
@@ -903,7 +879,7 @@ empq14
 </tr>
 <tr>
 <td style="text-align:left;">
-empq15
+postrand.q14
 </td>
 <td style="text-align:right;">
 0.5004352
@@ -914,7 +890,7 @@ empq15
 </tr>
 <tr>
 <td style="text-align:left;">
-empq16
+postrand.q15
 </td>
 <td style="text-align:right;">
 0.4978242
@@ -925,7 +901,7 @@ empq16
 </tr>
 <tr>
 <td style="text-align:left;">
-empq17
+postrand.q16
 </td>
 <td style="text-align:right;">
 0.5152306
@@ -936,7 +912,7 @@ empq17
 </tr>
 <tr>
 <td style="text-align:left;">
-empq18
+postrand.q17
 </td>
 <td style="text-align:right;">
 0.5117493
@@ -947,7 +923,7 @@ empq18
 </tr>
 <tr>
 <td style="text-align:left;">
-empq19
+postrand.q18
 </td>
 <td style="text-align:right;">
 0.5221932
@@ -958,7 +934,7 @@ empq19
 </tr>
 <tr>
 <td style="text-align:left;">
-empq20
+postrand.q19
 </td>
 <td style="text-align:right;">
 0.5228365
@@ -969,29 +945,559 @@ empq20
 </tr>
 </tbody>
 </table>
-<pre class="r"><code># extra code for confirming data
-# ftp_merged %&gt;% 
-#   # from 10 quarters prior to RA to 19 quarters following RA
-#   # remember that empq20 = quarter 19 because RA occurs in quarter 1
-#   select(c(&#39;emppq10&#39;:&#39;empq17&#39;, &#39;empq18&#39;:&#39;empq20&#39;)) %&gt;% 
-#   colMeans(., na.rm = TRUE)
-
-# ftp_merged %&gt;% 
-#   # from 10 quarters prior to RA to 19 quarters following RA
-#   # remember that empq20 = quarter 19 because RA occurs in quarter 1
-#   select(c(&#39;emppq10&#39;:&#39;empq17&#39;, &#39;empq18&#39;:&#39;empq20&#39;)) %&gt;%
-#   summarise(across(everything(), ~ sum(is.na(.x))))</code></pre>
 <p><em>What is the longest pre-period that you could analyze, ensuring
 that you have data for everyone in the sample? The longest post-period?
 Refer to this as the balanced sample period.</em></p>
+<p>There are 1149 people who responded to the survey question about time
+limits. All pre-randomization quarters include 1149 non-NA observations,
+as do all post-randomization quarters except for Quarter 19
+(postrand.q19 aka empq20).The balanced sample period is thus from 10
+quarters prior to RA to 18 quarters following RA.</p>
 <ol start="2" style="list-style-type: decimal">
-<li><p>Reconfigure the data so you have one record per person per
-quarter. Compute mean employment rates by treatment status, before and
-after treatment. Treatment status is TLyes; the date of random
-assignment divides the sample period into before and after (consider the
-period of random assignment itself to be “after”). Were employment rates
-similar between the treatment and control groups prior to
-treatment?</p></li>
+<li>Reconfigure the data so you have one record per person per quarter.
+Compute mean employment rates by treatment status, before and after
+treatment. Treatment status is TLyes; the date of random assignment
+divides the sample period into before and after (consider the period of
+random assignment itself to be “after”).</li>
+</ol>
+<table class="table table-striped table-hover" style="color: black; margin-left: auto; margin-right: auto;">
+<caption>
+Quarterly Employment by Treatment Status
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+Quarter
+</th>
+<th style="text-align:right;">
+Control Mean
+</th>
+<th style="text-align:right;">
+Treatment Mean
+</th>
+<th style="text-align:right;">
+Control N
+</th>
+<th style="text-align:right;">
+Treatment N
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+befrand.q10
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+483
+</td>
+<td style="text-align:right;">
+666
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+befrand.q09
+</td>
+<td style="text-align:right;">
+0.0703934
+</td>
+<td style="text-align:right;">
+0.0675676
+</td>
+<td style="text-align:right;">
+483
+</td>
+<td style="text-align:right;">
+666
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+befrand.q08
+</td>
+<td style="text-align:right;">
+0.1262940
+</td>
+<td style="text-align:right;">
+0.1891892
+</td>
+<td style="text-align:right;">
+483
+</td>
+<td style="text-align:right;">
+666
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+befrand.q07
+</td>
+<td style="text-align:right;">
+0.2111801
+</td>
+<td style="text-align:right;">
+0.2567568
+</td>
+<td style="text-align:right;">
+483
+</td>
+<td style="text-align:right;">
+666
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+befrand.q06
+</td>
+<td style="text-align:right;">
+0.2298137
+</td>
+<td style="text-align:right;">
+0.2642643
+</td>
+<td style="text-align:right;">
+483
+</td>
+<td style="text-align:right;">
+666
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+befrand.q05
+</td>
+<td style="text-align:right;">
+0.2339545
+</td>
+<td style="text-align:right;">
+0.2597598
+</td>
+<td style="text-align:right;">
+483
+</td>
+<td style="text-align:right;">
+666
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+befrand.q04
+</td>
+<td style="text-align:right;">
+0.2339545
+</td>
+<td style="text-align:right;">
+0.2477477
+</td>
+<td style="text-align:right;">
+483
+</td>
+<td style="text-align:right;">
+666
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+befrand.q03
+</td>
+<td style="text-align:right;">
+0.2401656
+</td>
+<td style="text-align:right;">
+0.2552553
+</td>
+<td style="text-align:right;">
+483
+</td>
+<td style="text-align:right;">
+666
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+befrand.q02
+</td>
+<td style="text-align:right;">
+0.2608696
+</td>
+<td style="text-align:right;">
+0.2627628
+</td>
+<td style="text-align:right;">
+483
+</td>
+<td style="text-align:right;">
+666
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+befrand.q01
+</td>
+<td style="text-align:right;">
+0.2898551
+</td>
+<td style="text-align:right;">
+0.3123123
+</td>
+<td style="text-align:right;">
+483
+</td>
+<td style="text-align:right;">
+666
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+postrand.q00
+</td>
+<td style="text-align:right;">
+0.2960663
+</td>
+<td style="text-align:right;">
+0.3303303
+</td>
+<td style="text-align:right;">
+483
+</td>
+<td style="text-align:right;">
+666
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+postrand.q01
+</td>
+<td style="text-align:right;">
+0.3126294
+</td>
+<td style="text-align:right;">
+0.3723724
+</td>
+<td style="text-align:right;">
+483
+</td>
+<td style="text-align:right;">
+666
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+postrand.q02
+</td>
+<td style="text-align:right;">
+0.3519669
+</td>
+<td style="text-align:right;">
+0.4309309
+</td>
+<td style="text-align:right;">
+483
+</td>
+<td style="text-align:right;">
+666
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+postrand.q03
+</td>
+<td style="text-align:right;">
+0.3643892
+</td>
+<td style="text-align:right;">
+0.4429429
+</td>
+<td style="text-align:right;">
+483
+</td>
+<td style="text-align:right;">
+666
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+postrand.q04
+</td>
+<td style="text-align:right;">
+0.3519669
+</td>
+<td style="text-align:right;">
+0.4264264
+</td>
+<td style="text-align:right;">
+483
+</td>
+<td style="text-align:right;">
+666
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+postrand.q05
+</td>
+<td style="text-align:right;">
+0.3788820
+</td>
+<td style="text-align:right;">
+0.4489489
+</td>
+<td style="text-align:right;">
+483
+</td>
+<td style="text-align:right;">
+666
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+postrand.q06
+</td>
+<td style="text-align:right;">
+0.4057971
+</td>
+<td style="text-align:right;">
+0.4954955
+</td>
+<td style="text-align:right;">
+483
+</td>
+<td style="text-align:right;">
+666
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+postrand.q07
+</td>
+<td style="text-align:right;">
+0.4347826
+</td>
+<td style="text-align:right;">
+0.5255255
+</td>
+<td style="text-align:right;">
+483
+</td>
+<td style="text-align:right;">
+666
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+postrand.q08
+</td>
+<td style="text-align:right;">
+0.4016563
+</td>
+<td style="text-align:right;">
+0.5360360
+</td>
+<td style="text-align:right;">
+483
+</td>
+<td style="text-align:right;">
+666
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+postrand.q09
+</td>
+<td style="text-align:right;">
+0.4223602
+</td>
+<td style="text-align:right;">
+0.5255255
+</td>
+<td style="text-align:right;">
+483
+</td>
+<td style="text-align:right;">
+666
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+postrand.q10
+</td>
+<td style="text-align:right;">
+0.4368530
+</td>
+<td style="text-align:right;">
+0.5195195
+</td>
+<td style="text-align:right;">
+483
+</td>
+<td style="text-align:right;">
+666
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+postrand.q11
+</td>
+<td style="text-align:right;">
+0.4368530
+</td>
+<td style="text-align:right;">
+0.5255255
+</td>
+<td style="text-align:right;">
+483
+</td>
+<td style="text-align:right;">
+666
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+postrand.q12
+</td>
+<td style="text-align:right;">
+0.4306418
+</td>
+<td style="text-align:right;">
+0.5360360
+</td>
+<td style="text-align:right;">
+483
+</td>
+<td style="text-align:right;">
+666
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+postrand.q13
+</td>
+<td style="text-align:right;">
+0.4347826
+</td>
+<td style="text-align:right;">
+0.5450450
+</td>
+<td style="text-align:right;">
+483
+</td>
+<td style="text-align:right;">
+666
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+postrand.q14
+</td>
+<td style="text-align:right;">
+0.4554865
+</td>
+<td style="text-align:right;">
+0.5330330
+</td>
+<td style="text-align:right;">
+483
+</td>
+<td style="text-align:right;">
+666
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+postrand.q15
+</td>
+<td style="text-align:right;">
+0.4699793
+</td>
+<td style="text-align:right;">
+0.5180180
+</td>
+<td style="text-align:right;">
+483
+</td>
+<td style="text-align:right;">
+666
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+postrand.q16
+</td>
+<td style="text-align:right;">
+0.4658385
+</td>
+<td style="text-align:right;">
+0.5510511
+</td>
+<td style="text-align:right;">
+483
+</td>
+<td style="text-align:right;">
+666
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+postrand.q17
+</td>
+<td style="text-align:right;">
+0.4906832
+</td>
+<td style="text-align:right;">
+0.5270270
+</td>
+<td style="text-align:right;">
+483
+</td>
+<td style="text-align:right;">
+666
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+postrand.q18
+</td>
+<td style="text-align:right;">
+0.5031056
+</td>
+<td style="text-align:right;">
+0.5360360
+</td>
+<td style="text-align:right;">
+483
+</td>
+<td style="text-align:right;">
+666
+</td>
+</tr>
+</tbody>
+</table>
+<p><em>Were employment rates similar between the treatment and control
+groups prior to treatment?</em></p>
+<p>Prior to treatment (emppq10:emppq1), the employment rates between the
+treatment and control groups are similar. If we run a two-sample t-test,
+as done below, we cannot reject the null hypothesis that the true
+difference in means between the treatment and control groups is equal to
+0.</p>
+<pre><code>## 
+##  Welch Two Sample t-test
+## 
+## data:  pre_mean by TLyes
+## t = -0.50872, df = 17.919, p-value = 0.6172
+## alternative hypothesis: true difference in means between group 0 and group 1 is not equal to 0
+## 95 percent confidence interval:
+##  -0.11244212  0.06861506
+## sample estimates:
+## mean in group 0 mean in group 1 
+##       0.1896480       0.2115616</code></pre>
+<ol start="3" style="list-style-type: decimal">
 <li><ol style="list-style-type: lower-alpha">
 <li>Run a DD regression. The dependent variable should be quarterly
 employment status, and the explanatory variables should include person
@@ -1000,13 +1506,105 @@ post-treatment dummy. Be sure to restrict attention to the balanced
 sample period.</li>
 </ol></li>
 </ol>
-<!-- -->
-<ol start="2" style="list-style-type: lower-alpha">
+<pre class="r"><code>dd3a_data &lt;- ftp_merged %&gt;% 
+  # select relevant columns
+  select(c(
+    # sampleid
+    &quot;sampleid&quot;,
+    # treatment status
+    &quot;TLyes&quot;,
+    # quarterly employment status for balanced sample period
+    &#39;befrand.q10&#39;:&#39;postrand.q16&#39;, &#39;postrand.q17&#39;:&#39;postrand.q18&#39;),
+    # columns of person dummies/covariates
+    # method pulled from pset 1
+    where(~ {
+    # the column&#39;s label
+    column_label &lt;- attributes(.)$label
+    # is not null AND contains &#39;cova&#39; (returns TRUE)
+    !is.null(column_label) &amp;&amp; str_detect(column_label, &#39;cova&#39;)
+    })) %&gt;% 
+  # reshape to long format so quarter employment values change over time
+  pivot_longer(befrand.q10:postrand.q18,
+    names_to = &quot;quarter&quot;,
+    values_to = &quot;employment_status&quot;
+  ) %&gt;% 
+  # add post-treatment dummy
+  mutate(post_dummy = case_when(
+    grepl(&quot;bef&quot;, quarter) ~ 0,
+    grepl(&quot;post&quot;, quarter) ~ 1
+  )) 
+  
+# run a fixed-effects OLS regression
+# model3a &lt;- lm(employment_status ~ (TLyes * post_dummy) +
+#                 # person dummies
+#                 factor(sampleid) +
+#                 # factor(sampleid) + factor(yr2adc) + factor(yradc) + factor(yr2rec) + factor(yrrec) + factor(yrkrec) + factor(yrearn) + factor(yr2earn) + factor(yrearnsq) + factor(yremp) + factor(yr2emp) + factor(yrkemp) + factor(yr2kemp) + factor(yr2fs) + factor(yrfs) + factor(yr2rfs) + factor(yrrfs) + factor(yrkrfs) 
+#               # quarter dummy
+#               + factor(quarter),
+#               data = dd3a_data)
+
+  # # outcome: employment status
+  # employment_status ~ 
+  #   # regressed on interaction of treatment and post dummy
+  #   (TLyes * post_dummy), model = &quot;within&quot;, 
+  # index = c(&quot;sampleid&quot;, &quot;quarter&quot;),
+  # data = dd3a_data)
+
+# run a fixed-effects OLS regression
+model3a &lt;- feols(employment_status ~ TLyes * post_dummy | sampleid + quarter, data = dd3a_data)</code></pre>
+<pre><code>## The variables &#39;TLyes&#39; and &#39;post_dummy&#39; have been removed because of collinearity (see $collin.var).</code></pre>
+<pre class="r"><code>summary(model3a, 
+        # specify non-clustered errors as feols auto clusters on sampleid
+        se = &quot;hetero&quot;)</code></pre>
+<pre><code>## OLS estimation, Dep. Var.: employment_status
+## Observations: 33,321
+## Fixed-effects: sampleid: 1,149,  quarter: 29
+## Standard-errors: Heteroskedasticity-robust 
+##                  Estimate Std. Error t value        Pr(&gt;|t|)    
+## TLyes:post_dummy 0.056039   0.008849 6.33314 0.0000000002434 ***
+## ... 2 variables were removed because of collinearity (TLyes and post_dummy)
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## RMSE: 0.385913     Adj. R2: 0.337617
+##                  Within R2: 0.001159</code></pre>
+<ol start="3" style="list-style-type: decimal">
+<li><ol start="2" style="list-style-type: lower-alpha">
 <li>Now run the same regression, clustering the standard errors by
 sampleid. Explain why the standard errors change the way they do. Which
 standard errors should you report?</li>
+</ol></li>
+</ol>
+<pre class="r"><code>model3b &lt;- feols(
+  # outcome: employment status
+  employment_status ~ 
+    # regressed on interaction of treatment and post dummy
+    (TLyes * post_dummy) | 
+    # controlling for sampleid (individual fixed effects, as these are time-invariant for each person) 
+    sampleid 
+  # and controlling for quarter (time-specific fixed effects)
+  + quarter, 
+  data = dd3a_data,
+  # cluster standard errors by sampleid
+  cluster = ~sampleid
+  )</code></pre>
+<pre><code>## The variables &#39;TLyes&#39; and &#39;post_dummy&#39; have been removed because of collinearity (see $collin.var).</code></pre>
+<pre class="r"><code>summary(model3b)</code></pre>
+<pre><code>## OLS estimation, Dep. Var.: employment_status
+## Observations: 33,321
+## Fixed-effects: sampleid: 1,149,  quarter: 29
+## Standard-errors: Clustered (sampleid) 
+##                  Estimate Std. Error t value  Pr(&gt;|t|)    
+## TLyes:post_dummy 0.056039   0.018376 3.04962 0.0023438 ** 
+## ... 2 variables were removed because of collinearity (TLyes and post_dummy)
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## RMSE: 0.385913     Adj. R2: 0.337617
+##                  Within R2: 0.001159</code></pre>
+<ol start="3" style="list-style-type: decimal">
+<li><ol start="3" style="list-style-type: lower-alpha">
 <li>How do you interpret the coefficient on the interaction between
 TLyes and the post- treatment dummy?</li>
+</ol></li>
 </ol>
 <!-- -->
 <ol start="4" style="list-style-type: decimal">
