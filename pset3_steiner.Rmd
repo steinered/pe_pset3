@@ -437,7 +437,7 @@ data.frame(
 ```
 6. *Continued: Are they similar? How would you test the hypothesis that they are
     the same?*
-These mean effects do appear to be very similar. I would use a TK.
+These mean effects do appear to be very similar. I would conduct the Wald test for pre-test of parallel trends TK
 
 7.  *So far, we have acted as if all the treatment observations were
     treated at the same calendar time. In fact, treatment was assigned
@@ -459,20 +459,129 @@ We know that treatment effects are heterogenous across units and time. Groups ra
 ```{r 8 CS}
 # using did package per https://rpubs.com/mbounthavong/cs_staggered_did_r
 
+# creating data set, similar to 3a and 5 but with additional column
+dd8_data <- ftp_merged %>% 
+  # select relevant columns
+  select(c(
+    # sampleid
+    "sampleid",
+    # treatment status
+    "TLyes",
+    # quarterly employment status for balanced sample period
+    'bfr.q10':'postr.q16', 'postr.q17':'postr.q18',
+    # ADDED: COLUMN OF TREATMENT QUARTER
+    "rarelqt"),
+    # columns of person dummies/covariates
+    # method pulled from pset 1
+    where(~ {
+    # the column's label
+    column_label <- attributes(.)$label
+    # is not null AND contains 'cova' (returns TRUE)
+    !is.null(column_label) && str_detect(column_label, 'cova')
+    })) %>% 
+  # reshape to long format so quarter employment values change over time
+  pivot_longer(bfr.q10:postr.q18,
+    names_to = "quarter",
+    values_to = "employment_status"
+  ) %>% 
+  # add post-treatment dummy
+  mutate(post_dummy = case_when(
+    grepl("bfr", quarter) ~ 0,
+    grepl("post", quarter) ~ 1
+  )) %>% 
+  # CONVERT RARELQT to 0 IF NEVER TREATED
+  mutate(rarelqt =
+           case_when(
+             TLyes == 0 ~ 0,
+             TLyes == 1 ~ rarelqt
+           )) %>%
+  # add period variable
+  mutate(trt_period = case_when(
+    quarter == "bfr.q10" ~ -10,
+    quarter == "bfr.q09" ~ -9,
+    quarter == "bfr.q08" ~ -8,
+    quarter == "bfr.q07" ~ -7,
+    quarter == "bfr.q06" ~ -6,
+    quarter == "bfr.q05" ~ -5,
+    quarter == "bfr.q04" ~ -4,
+    quarter == "bfr.q03" ~ -3,
+    quarter == "bfr.q02" ~ -2,
+    quarter == "bfr.q01" ~ -1,
+    quarter == "postr.q00" ~ 0,
+    quarter == "postr.q01" ~ 1,
+    quarter == "postr.q02" ~ 2,
+    quarter == "postr.q03" ~ 3,
+    quarter == "postr.q04" ~ 4,
+    quarter == "postr.q05" ~ 5,
+    quarter == "postr.q06" ~ 6,
+    quarter == "postr.q07" ~ 7,
+    quarter == "postr.q08" ~ 8,
+    quarter == "postr.q09" ~ 9,
+    quarter == "postr.q10" ~ 10,
+    quarter == "postr.q11" ~ 11,
+    quarter == "postr.q12" ~ 12,
+    quarter == "postr.q13" ~ 13,
+    quarter == "postr.q14" ~ 14,
+    quarter == "postr.q15" ~ 15,
+    quarter == "postr.q16" ~ 16,
+    quarter == "postr.q17" ~ 17,
+    quarter == "postr.q18" ~ 18,
+  )) %>% 
+  # introduce absolute calendar quarter
+   mutate(cal_quarter = 
+            case_when(
+# quarter treated - 1 (because treated at 1 will be starting in 0 period)
+              TLyes == 1 ~  (rarelqt - 1) + trt_period,
+              TLyes == 0 ~ trt_period
+              )
+  ) %>% 
+  mutate(sampleid = as.numeric(as.factor(sampleid)))
 
+att_gt(yname = "employment_status",
+       tname = "cal_quarter",
+       idname = "sampleid",
+       gname = "rarelqt",
+       data = dd8_data,
+       est_method = "dr",
+       control_group = "notyettreated",
+       clustervars = "sampleid",
+       panel = FALSE
+         )
 
 ```
-
-
 
 9.  *Start by creating a variable showing which observations are first
     treated in each calendar quarter. Call it racalqt. Tabulate it and
     comment on the share of observations that is first assigned to
     treatment in each quarter.*
+```{r 9}
+table9 <- dd8_data %>% 
+  mutate(racalqt =
+           case_when(
+             rarelqt == 1 ~ "1994.II",
+             rarelqt == 2 ~ "1994.III",
+             rarelqt == 3 ~ "1994.IV",
+             rarelqt == 4 ~ "1995.I",
+             rarelqt == 0 ~ "Never Treated"
+           )) %>% 
+  count(racalqt)
+
+
+
+table9 %>% 
+  mutate(share = (n/(10614 + 13543 + 9164)))
+```
+    
+24% of observations are assigned to treatment during the 4th quarter of 1994. 18% are assigned to treatment during the 3rd quarter of 1994, while only 16% are assigned to treatment during the 1st quarter of 1995. 42% are never assigned to treatment.
 
 10. *Calculate ATT(g, t) for each value of g and t = 1994.II to 1997.II.
     How similar are the estimated effects of treatment for the four
     groups?*
+    
+```{r 10}
+
+```
+    
 
 11. *Now calculate and plot period-specific treatment effects in units
     of time relative to the treatment quarter, also known as elapsed
