@@ -24,7 +24,7 @@ library("magrittr")
 library('knitr')
 library('kableExtra')
 library("fixest")
-library("plm")
+# library("plm")
 # library("stringr")
 # library("stargazer")
 # library("ivreg")
@@ -63,7 +63,7 @@ ftp_merged <-
   # remove rows where TLyes = NA
   filter(!is.na(TLyes)) %>% 
   # make the employment quarter columns more readable
-  rename(befrand.q01 = emppq1, befrand.q02 = emppq2, befrand.q03 = emppq3, befrand.q04 = emppq4, befrand.q05 = emppq5, befrand.q06 = emppq6, befrand.q07 = emppq7, befrand.q08 = emppq8, befrand.q09 = emppq9, befrand.q10 = emppq10, postrand.q00 = empq1, postrand.q01 = empq2, postrand.q02 = empq3, postrand.q03 = empq4, postrand.q04 = empq5, postrand.q05 = empq6, postrand.q06 = empq7, postrand.q07 = empq8, postrand.q08 = empq9, postrand.q09 = empq10, postrand.q10 = empq11, postrand.q11 = empq12, postrand.q12 = empq13, postrand.q13 = empq14, postrand.q14 = empq15, postrand.q15 = empq16, postrand.q16 = empq17, postrand.q17 = empq18, postrand.q18 = empq19, postrand.q19 = empq20)
+  rename(bfr.q01 = emppq1, bfr.q02 = emppq2, bfr.q03 = emppq3, bfr.q04 = emppq4, bfr.q05 = emppq5, bfr.q06 = emppq6, bfr.q07 = emppq7, bfr.q08 = emppq8, bfr.q09 = emppq9, bfr.q10 = emppq10, postr.q00 = empq1, postr.q01 = empq2, postr.q02 = empq3, postr.q03 = empq4, postr.q04 = empq5, postr.q05 = empq6, postr.q06 = empq7, postr.q07 = empq8, postr.q08 = empq9, postr.q09 = empq10, postr.q10 = empq11, postr.q11 = empq12, postr.q12 = empq13, postr.q13 = empq14, postr.q14 = empq15, postr.q15 = empq16, postr.q16 = empq17, postr.q17 = empq18, postr.q18 = empq19, postr.q19 = empq20)
 ```
 
 1.  *Find the means of quarterly employment for each quarter from 10
@@ -78,7 +78,7 @@ ftp_merged <-
 ftp_merged %>% 
   # from 10 quarters prior to RA to 19 quarters following RA
   # remember that empq20 = quarter 19 because RA occurs in quarter 1
-  select(c('befrand.q10':'postrand.q16', 'postrand.q17':'postrand.q19')) %>% 
+  select(c('bfr.q10':'postr.q16', 'postr.q17':'postr.q19')) %>% 
   # calculate the mean across selected columns
   summarise(across(everything(),
     # using list as we're doing multiple functions and want to give custom name to output col
@@ -101,15 +101,15 @@ ftp_merged %>%
 
 ```
 
-*What is the longest pre-period that you could analyze, ensuring that
-you have data for everyone in the sample? The longest post-period? Refer
-to this as the balanced sample period.*
+1.  *Continued: What is the longest pre-period that you could analyze,
+    ensuring that you have data for everyone in the sample? The longest
+    post-period? Refer to this as the balanced sample period.*
 
 There are 1149 people who responded to the survey question about time
 limits. All pre-randomization quarters include 1149 non-NA observations,
-as do all post-randomization quarters except for Quarter 19
-(postrand.q19 aka empq20).The balanced sample period is thus from 10
-quarters prior to RA to 18 quarters following RA.
+as do all post-randomization quarters except for Quarter 19 (postr.q19
+aka empq20).The balanced sample period is thus from 10 quarters prior to
+RA to 18 quarters following RA.
 
 2.  *Reconfigure the data so you have one record per person per quarter.
     Compute mean employment rates by treatment status, before and after
@@ -121,13 +121,13 @@ quarters prior to RA to 18 quarters following RA.
 # reconfigure the data so you have one record per person per quarter
 # create a balanced sample period (remove empq20)
 
-quarter_levels <- c("befrand.q10","befrand.q09", "befrand.q08", "befrand.q07", "befrand.q06", "befrand.q05", "befrand.q04", "befrand.q03", "befrand.q02", "befrand.q01", "postrand.q00", "postrand.q01", "postrand.q02", "postrand.q03", "postrand.q04", "postrand.q05", "postrand.q06", "postrand.q07", "postrand.q08", "postrand.q09", "postrand.q10", "postrand.q11", "postrand.q12", "postrand.q13", "postrand.q14", "postrand.q15", "postrand.q16", "postrand.q17", "postrand.q18", "postrand.q19")
+quarter_levels <- c("bfr.q10","bfr.q09", "bfr.q08", "bfr.q07", "bfr.q06", "bfr.q05", "bfr.q04", "bfr.q03", "bfr.q02", "bfr.q01", "postr.q00", "postr.q01", "postr.q02", "postr.q03", "postr.q04", "postr.q05", "postr.q06", "postr.q07", "postr.q08", "postr.q09", "postr.q10", "postr.q11", "postr.q12", "postr.q13", "postr.q14", "postr.q15", "postr.q16", "postr.q17", "postr.q18", "postr.q19")
 
 qemp_rates <- ftp_merged %>% 
   # select columns needed for analyses, such as treatment status
   select(c("TLyes", 
            # employment quarters for balanced sample period only
-           'befrand.q10':'postrand.q16', 'postrand.q17':'postrand.q18')
+           'bfr.q10':'postr.q16', 'postr.q17':'postr.q18')
          ) %>% 
   # pivot longer for easier manipulation
   pivot_longer(cols = -TLyes,
@@ -160,7 +160,7 @@ qemp_rates %>%
 
 ```
 
-*2 cont.: Were employment rates similar between the treatment and
+2\. *Continued: Were employment rates similar between the treatment and
 control groups prior to treatment?*
 
 Prior to treatment (emppq10:emppq1), the employment rates between the
@@ -174,7 +174,7 @@ ttest_df <- ftp_merged %>%
   # select columns needed for analyses, such as treatment status
   select(c("TLyes", 
            # employment quarters for pre-randomization only
-           'befrand.q10':'befrand.q01')
+           'bfr.q10':'bfr.q01')
          ) %>% 
   # pivot longer for easier manipulation
   pivot_longer(cols = -TLyes,
@@ -207,7 +207,7 @@ dd3a_data <- ftp_merged %>%
     # treatment status
     "TLyes",
     # quarterly employment status for balanced sample period
-    'befrand.q10':'postrand.q16', 'postrand.q17':'postrand.q18'),
+    'bfr.q10':'postr.q16', 'postr.q17':'postr.q18'),
     # columns of person dummies/covariates
     # method pulled from pset 1
     where(~ {
@@ -217,32 +217,16 @@ dd3a_data <- ftp_merged %>%
     !is.null(column_label) && str_detect(column_label, 'cova')
     })) %>% 
   # reshape to long format so quarter employment values change over time
-  pivot_longer(befrand.q10:postrand.q18,
+  pivot_longer(bfr.q10:postr.q18,
     names_to = "quarter",
     values_to = "employment_status"
   ) %>% 
   # add post-treatment dummy
   mutate(post_dummy = case_when(
-    grepl("bef", quarter) ~ 0,
+    grepl("bfr", quarter) ~ 0,
     grepl("post", quarter) ~ 1
   )) 
   
-# run a fixed-effects OLS regression
-# model3a <- lm(employment_status ~ (TLyes * post_dummy) +
-#                 # person dummies
-#                 factor(sampleid) +
-#                 # factor(sampleid) + factor(yr2adc) + factor(yradc) + factor(yr2rec) + factor(yrrec) + factor(yrkrec) + factor(yrearn) + factor(yr2earn) + factor(yrearnsq) + factor(yremp) + factor(yr2emp) + factor(yrkemp) + factor(yr2kemp) + factor(yr2fs) + factor(yrfs) + factor(yr2rfs) + factor(yrrfs) + factor(yrkrfs) 
-#               # quarter dummy
-#               + factor(quarter),
-#               data = dd3a_data)
-
-  # # outcome: employment status
-  # employment_status ~ 
-  #   # regressed on interaction of treatment and post dummy
-  #   (TLyes * post_dummy), model = "within", 
-  # index = c("sampleid", "quarter"),
-  # data = dd3a_data)
-
 # run a fixed-effects OLS regression
 model3a <- feols(employment_status ~ TLyes * post_dummy | sampleid + quarter, data = dd3a_data)
 
@@ -272,8 +256,8 @@ model3b <- feols(
 summary(model3b)
 ```
 
-*3b cont. Explain why the standard errors change the way they do. Which
-standard errors should you report?*
+3.  *(b) Continued: Explain why the standard errors change the way they
+    do. Which standard errors should you report?*
 
 The standard errors increase (from 0.00849 to 0.018376) from the first
 model (no clustering) to the second (clustered on sampleid). The
@@ -308,63 +292,90 @@ model4a <- feols(employment_status ~ (TLyes * quarter) | sampleid + quarter, dat
 summary(model4a)
 
 ```
-*Do you reject the null hypothesis?*
-No! The coefficients of the interactions between the time effects and treatment status are not statistically significant. 
 
-(b) Plot the relevant results.
+4.  *(a) Continued: Do you reject the null hypothesis?* No! The
+    coefficients of the interactions between the time effects and
+    treatment status are not statistically significant.
+
+<!-- -->
+
+4.  *(b) Plot the relevant results.*
+
 ```{r 4b plot, echo = FALSE}
 # plot quarterly employment rates prior to randomization
+d_cols <- c("darkorange", "cyan")
+r_cols <- c("darkorange4", "cyan4")
+
 dd4a_data %>% 
   select(c("TLyes", "quarter", "employment_status")) %>% 
-  mutate(quarter = factor(quarter, levels = quarter_levels)) %>% 
+  mutate(quarter = factor(quarter, levels = quarter_levels),
+           TLyes = case_when(
+             TLyes == 0 ~ "control",
+             TLyes == 1 ~ "treated"
+             )) %>% 
   group_by(quarter, TLyes) %>% 
   summarise(mean = mean(employment_status),
                  sd = sd(employment_status),
                  se = sd / sqrt(n()), .groups = "keep") %>% 
   ggplot(aes(x = quarter, y = mean, color = as.factor(TLyes), group = as.factor(TLyes))) +
-  geom_line() +
+  geom_line()+
   geom_point() +
-  geom_errorbar(aes(ymin = mean - se, ymax = mean + se)) +
-  labs(title = "Mean Employment Pre-Randomization by Treatment Status")
-
-# plot the interaction terms
-
-
+  geom_ribbon(aes(ymin = mean - (2*se), ymax = mean + (2*se)), alpha = 0.2) +
+  scale_color_manual(values = d_cols) +
+  labs(title = "Mean Employment Pre-Randomization by Treatment Status",
+       x = "Quarter Pre-Randomization",
+       y = "Mean Employment",
+       color = "Treatment Status",
+       caption = "* Ribbons capture range 2 standard errors away from mean. \n The complete overlap suggests no statistically significant difference between groups.") +
+  theme_minimal()
 
 ```
 
+4.  *(c) Do your results imply that your estimator identifies the ATT?*
 
+No, these results do not imply that the estimator identifies the ATT.
+Identification of the ATT requires that there are parallel trends in the
+untreated outcomes across the entire sample period. However, we cannot
+know what the untreated outcomes would be for the treated group, as
+there are no data on the counter-factual.
 
-(c) Do your results imply that your estimator identifies the ATT?
+Failing parallel pre-trends would suggest the identifying assumption
+fails, but passing (as we have in this case) does not imply that it
+holds.
 
-<!-- -->
-
-5.  Now implement the event-study estimator, that is, estimate
+5.  *Now implement the event-study estimator, that is, estimate
     period-specific treatment effects that vary freely over the
     post-treatment period. Plot the estimates. Are the period-specific
-    estimates significant? If not, does this concern you? Explain.
-6.  Compare the mean of the period-specific treatment effects from
+    estimates significant? If not, does this concern you? Explain.*
+
+6.  *Compare the mean of the period-specific treatment effects from
     question 5 to the constant post-treatment effect from question 3.
     Are they similar? How would you test the hypothesis that they are
-    the same?
-7.  So far, we have acted as if all the treatment observations were
+    the same?*
+
+7.  *So far, we have acted as if all the treatment observations were
     treated at the same calendar time. In fact, treatment was assigned
     over a period of four quarters, as can be seen by tabulating the
     variable rarelqt. Explain briefly why this potentially poses a
-    problem for the analysis above.
-8.  To see how important this issue is in practice, re-estimate your
+    problem for the analysis above.*
+
+8.  *To see how important this issue is in practice, re-estimate your
     event-study model using the Callaway-Sant’anna method. Note that
-    rarelqt = 1 corresponds to 1994.II, that is, April-June
-9.  Start by creating a variable showing which observations are first
+    rarelqt = 1 corresponds to 1994.II, that is, April-June*
+
+9.  *Start by creating a variable showing which observations are first
     treated in each calendar quarter. Call it racalqt. Tabulate it and
     comment on the share of observations that is first assigned to
-    treatment in each quarter.
-10. Calculate ATT(g, t) for each value of g and t = 1994.II to 1997.II.
+    treatment in each quarter.*
+
+10. *Calculate ATT(g, t) for each value of g and t = 1994.II to 1997.II.
     How similar are the estimated effects of treatment for the four
-    groups?
-11. Now calculate and plot period-specific treatment effects in units of
-    time relative to the treatment quarter, also known as elapsed time
-    and denoted by e. Do this for e=1,...,8.
-12. Compare these estimates to those you estimated in question 5. Would
+    groups?*
+
+11. *Now calculate and plot period-specific treatment effects in units
+    of time relative to the treatment quarter, also known as elapsed
+    time and denoted by e. Do this for e=1,...,8.*
+
+12. *Compare these estimates to those you estimated in question 5. Would
     you say they are mostly similar, or mostly different? Pay particular
-    attention to the estimates for e=1 to 4.
+    attention to the estimates for e=1 to 4.*
