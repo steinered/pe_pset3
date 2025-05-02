@@ -444,9 +444,27 @@ These mean effects do appear to be very similar. I would use a TK.
     variable rarelqt. Explain briefly why this potentially poses a
     problem for the analysis above.*
 
+```{r 7 tab}
+table(ftp_merged$rarelqt)
+
+```
+
+We know that treatment effects are heterogenous across units and time. Groups randomized into treatment at different quarters are thus experiencing different time effects at each "period" of measured employment. For example, if someone is randomized into treatment in Quarter 2 (approximately August 1994), their employment outcomes in period 8 (8 quarters after randomization) would include the treatment effect and time-specific effects of August 1996 (plus fixed individual effects which are irrelevant here). However the period 8 employment outcomes of someone randomized into treatment in Quarter 4 (approximately February 1995) would reflect the treatment effect and time-specific effects of February 1997. We cannot assume that the time-specific effects of August 1996 and February 1997 are the same; therefore, our analysis above does not accurately identify the average treatment effect. Rather, it conflates treatment effects with some time-specific influences. 
+
+
 8.  *To see how important this issue is in practice, re-estimate your
     event-study model using the Callaway-Sant’anna method. Note that
     rarelqt = 1 corresponds to 1994.II, that is, April-June*
+
+```{r}
+
+```
+
+
+
+
+
+
 
 9.  *Start by creating a variable showing which observations are first
     treated in each calendar quarter. Call it racalqt. Tabulate it and
