@@ -414,35 +414,29 @@ Importantly, none of the pre-treatment periods are significant; this confirms th
 While we might expect that some of the periods have slightly larger or smaller coefficients (and thus differ in their significance), it is interesting to note that most of the significant treatment/period interactions occur between 6 and 13 quarters after treatment (peaking at quarter 8). This suggests that there is variance in treatment effect over time, particularly decreasing after period 13.
 
 6.  *Compare the mean of the period-specific treatment effects from
-    question 5 to the constant post-treatment effect from question 3.
-    Are they similar? How would you test the hypothesis that they are
-    the same?*
+    question 5 to the constant post-treatment effect from question 3.*
     
 ```{r 6 means}
-# find the mean of period-specific treatment effects from question 5
-# only looking at the periods after treatment
-# tidy(model5) %>% 
-#   [c("trt_period::0:TLyes":"trt_period::18:TLyes")]
-# 
-# 
-# 
-# 
-# comp_data <- data.frame(
-#   model = c("model 3", "model 5"),
-#   modmean = c((mean(model5$coefficients)), (mean(model3b$coefficients))),
-#   modse = c()
-#     
-#     
-#   )
-#   
-#   
-# )
-# 
-# se(model5$coefficients)
-# 
-# model3b
-```
+# period-specific treatment effects from question 5
+m5data <- tidy(model5) %>% 
+  # exclude periods prior to treatment
+  filter(!grepl("-", term))
 
+# overall treatment effects from question 3
+m3data <- tidy(model3b)
+
+# print table of means
+data.frame(
+  model = c("3", "5"),
+  mean = c((mean(m3data$estimate)), (mean(m5data$estimate)))) %>% 
+  kable(col.names = c("Model", "Mean Effect"), 
+        caption = "Mean Treatment Effect by Model") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"))
+  
+```
+6. *Continued: Are they similar? How would you test the hypothesis that they are
+    the same?*
+These mean effects do appear to be very similar. I would use a TK.
 
 7.  *So far, we have acted as if all the treatment observations were
     treated at the same calendar time. In fact, treatment was assigned
