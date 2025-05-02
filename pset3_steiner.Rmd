@@ -437,7 +437,7 @@ data.frame(
 ```
 6. *Continued: Are they similar? How would you test the hypothesis that they are
     the same?*
-These mean effects do appear to be very similar. I would conduct the Wald test for pre-test of parallel trends TK
+These mean effects do appear to be very similar. I would conduct the Wald test for pre-test of parallel trends.
 
 7.  *So far, we have acted as if all the treatment observations were
     treated at the same calendar time. In fact, treatment was assigned
@@ -586,7 +586,17 @@ table9 %>%
 11. *Now calculate and plot period-specific treatment effects in units
     of time relative to the treatment quarter, also known as elapsed
     time and denoted by e. Do this for e=1,...,8.*
+    
+```{r 11}
+
+```
+
 
 12. *Compare these estimates to those you estimated in question 5. Would
     you say they are mostly similar, or mostly different? Pay particular
     attention to the estimates for e=1 to 4.*
+    
+```{r 12}
+
+```
+
