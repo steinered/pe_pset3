@@ -24,6 +24,7 @@ library("magrittr")
 library('knitr')
 library('kableExtra')
 library("fixest")
+library("broom")
 # library("plm")
 # library("stringr")
 # library("stargazer")
@@ -148,10 +149,6 @@ qemp_rates <- ftp_merged %>%
 qemp_rates %>% 
   # factor quarters for ordering
   mutate(quarter = factor(quarter, levels = quarter_levels)) %>% 
-  # mutate(
-  #   quarter = str_replace(quarter, "emppq", "before-rand quarter "),
-  #   quarter = str_replace(quarter, "empq", "post-rand quarter "),
-  #   ) %>%
   arrange(quarter) %>% 
   kable(col.names = c("Quarter", "Control Mean", "Treatment Mean", "Control N", "Treatment N"), 
         caption = "Quarterly Employment by Treatment Status") %>% 
@@ -248,6 +245,7 @@ model3b <- feols(
     sampleid 
   # and controlling for quarter (time-specific fixed effects)
   + quarter, 
+  # use proper data set
   data = dd3a_data,
   # cluster standard errors by sampleid
   cluster = ~sampleid
@@ -293,11 +291,10 @@ summary(model4a)
 
 ```
 
-4.  *(a) Continued: Do you reject the null hypothesis?* No! The
-    coefficients of the interactions between the time effects and
-    treatment status are not statistically significant.
+4.  *(a) Continued: Do you reject the null hypothesis?* 
 
-<!-- -->
+No! The coefficients of the interactions between the time effects and treatment status are not statistically significant.
+
 
 4.  *(b) Plot the relevant results.*
 
@@ -329,6 +326,13 @@ dd4a_data %>%
        caption = "* Ribbons capture range 2 standard errors away from mean. \n The complete overlap suggests no statistically significant difference between groups.") +
   theme_minimal()
 
+# plot confidence interval and point estimate
+coefplot(model4a,
+         order = c("10", "09", "08", "07", "06", "05", "04", "03", "02"),
+         xlab = "Quarter Before Treatment",
+         ylab = "Interaction coeff. and 95% CI",
+         main = "Treatment status impact on employment: Pre-treatment")
+
 ```
 
 4.  *(c) Do your results imply that your estimator identifies the ATT?*
@@ -345,13 +349,100 @@ holds.
 
 5.  *Now implement the event-study estimator, that is, estimate
     period-specific treatment effects that vary freely over the
-    post-treatment period. Plot the estimates. Are the period-specific
-    estimates significant? If not, does this concern you? Explain.*
+    post-treatment period.*
+    
+```{r 5 event-study}
+# implementing the event-study estimator
+dd5_data <- dd3a_data %>% 
+  # add a variable that identifies the number of periods after treatment
+  mutate(trt_period = case_when(
+    quarter == "bfr.q10" ~ -10,
+    quarter == "bfr.q09" ~ -9,
+    quarter == "bfr.q08" ~ -8,
+    quarter == "bfr.q07" ~ -7,
+    quarter == "bfr.q06" ~ -6,
+    quarter == "bfr.q05" ~ -5,
+    quarter == "bfr.q04" ~ -4,
+    quarter == "bfr.q03" ~ -3,
+    quarter == "bfr.q02" ~ -2,
+    quarter == "bfr.q01" ~ -1,
+    quarter == "postr.q00" ~ 0,
+    quarter == "postr.q01" ~ 1,
+    quarter == "postr.q02" ~ 2,
+    quarter == "postr.q03" ~ 3,
+    quarter == "postr.q04" ~ 4,
+    quarter == "postr.q05" ~ 5,
+    quarter == "postr.q06" ~ 6,
+    quarter == "postr.q07" ~ 7,
+    quarter == "postr.q08" ~ 8,
+    quarter == "postr.q09" ~ 9,
+    quarter == "postr.q10" ~ 10,
+    quarter == "postr.q11" ~ 11,
+    quarter == "postr.q12" ~ 12,
+    quarter == "postr.q13" ~ 13,
+    quarter == "postr.q14" ~ 14,
+    quarter == "postr.q15" ~ 15,
+    quarter == "postr.q16" ~ 16,
+    quarter == "postr.q17" ~ 17,
+    quarter == "postr.q18" ~ 18,
+  ))
+
+model5 <- feols(employment_status ~ 
+                  # using i as we are examining the interaction between a categorical variable (trt_period) and a continuous variable (TLyes), setting baseline to right before treatment (-1)
+                  i(trt_period, TLyes, ref = -1) | sampleid + quarter, data = dd5_data)
+
+summary(model5)
+```
+5. *Continued: Plot the estimates.*
+```{r 5 plot}
+# plot model 5 estimates
+# use iplot because we used i() in feols
+iplot(model5,
+      # add labels
+       xlab = "Treatment Period",
+      ylab = "Interaction coeff. and 95% CI",
+         main = "Treatment-status impact on employment by period")
+```
+
+
+5. *Continued: Are the period-specific estimates significant? If not, does this concern you? Explain.*
+
+Some of the period-specific estimates are significant. Period 8 is significant at the 0.01 level; periods 9, 12, and 13 are significant at the 0.05 level; periods 2, 3, 6, 7, 11, and 15 are significant the 0.1 level.
+
+Importantly, none of the pre-treatment periods are significant; this confirms the pre-treatment parallel trend assumption holds. 
+
+While we might expect that some of the periods have slightly larger or smaller coefficients (and thus differ in their significance), it is interesting to note that most of the significant treatment/period interactions occur between 6 and 13 quarters after treatment (peaking at quarter 8). This suggests that there is variance in treatment effect over time, particularly decreasing after period 13.
 
 6.  *Compare the mean of the period-specific treatment effects from
     question 5 to the constant post-treatment effect from question 3.
     Are they similar? How would you test the hypothesis that they are
     the same?*
+    
+```{r 6 means}
+# find the mean of period-specific treatment effects from question 5
+# only looking at the periods after treatment
+# tidy(model5) %>% 
+#   [c("trt_period::0:TLyes":"trt_period::18:TLyes")]
+# 
+# 
+# 
+# 
+# comp_data <- data.frame(
+#   model = c("model 3", "model 5"),
+#   modmean = c((mean(model5$coefficients)), (mean(model3b$coefficients))),
+#   modse = c()
+#     
+#     
+#   )
+#   
+#   
+# )
+# 
+# se(model5$coefficients)
+# 
+# model3b
+```
+
 
 7.  *So far, we have acted as if all the treatment observations were
     treated at the same calendar time. In fact, treatment was assigned
