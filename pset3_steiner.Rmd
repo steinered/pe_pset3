@@ -537,7 +537,7 @@ dd8_data <- ftp_merged %>%
   ) %>% 
   mutate(sampleid = as.numeric(as.factor(sampleid)))
 
-att_gt(yname = "employment_status",
+model8 <- att_gt(yname = "employment_status",
        tname = "cal_quarter",
        idname = "sampleid",
        gname = "rarelqt",
@@ -548,6 +548,7 @@ att_gt(yname = "employment_status",
        panel = FALSE
          )
 
+summary(model8)
 ```
 
 9.  *Start by creating a variable showing which observations are first
@@ -579,7 +580,29 @@ table9 %>%
     groups?*
     
 ```{r 10}
+tidy(model8) %>% 
+  select(c("term", "group", "time", "estimate")) %>% 
+  filter(grepl("ATT", term)) %>% 
+  # exclude pre and after 1997.II
+  filter(time >= 0, time < 13) %>% 
+  mutate(time =
+           case_when(
+             time == 0 ~ "1994.II",
+             time == 1 ~ "1994.III",
+             time == 2 ~ "1994.IV",
+             time == 3 ~ "1995.I",
+             time == 4 ~ "1995.II",
+             time == 5 ~ "1995.III",
+             time == 6 ~ "1995.IV",
+             time == 7 ~ "1996.I",
+             time == 8 ~ "1996.II",
+             time == 9 ~ "1996.III",
+             time == 10 ~ "1996.IV",
+             time == 11 ~ "1997.I",
+             time == 12 ~ "1997.II"
+           ))
 
+# next step: aggregate
 ```
     
 
