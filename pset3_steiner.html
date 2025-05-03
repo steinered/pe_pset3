@@ -1665,25 +1665,279 @@ interactions occur between 6 and 13 quarters after treatment (peaking at
 quarter 8). This suggests that there is variance in treatment effect
 over time, particularly decreasing after period 13.</p>
 <ol start="6" style="list-style-type: decimal">
-<li><p><em>Compare the mean of the period-specific treatment effects
-from question 5 to the constant post-treatment effect from question 3.
-Are they similar? How would you test the hypothesis that they are the
-same?</em></p></li>
+<li><em>Compare the mean of the period-specific treatment effects from
+question 5 to the constant post-treatment effect from question
+3.</em></li>
+</ol>
+<table class="table table-striped table-hover" style="color: black; margin-left: auto; margin-right: auto;">
+<caption>
+Mean Treatment Effect by Model
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+Model
+</th>
+<th style="text-align:right;">
+Mean Effect
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+3
+</td>
+<td style="text-align:right;">
+0.0560394
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+5
+</td>
+<td style="text-align:right;">
+0.0554957
+</td>
+</tr>
+</tbody>
+</table>
+<ol start="6" style="list-style-type: decimal">
+<li><p><em>Continued: Are they similar? How would you test the
+hypothesis that they are the same?</em> These mean effects do appear to
+be very similar. I would conduct the Wald test for pre-test of parallel
+trends.</p></li>
 <li><p><em>So far, we have acted as if all the treatment observations
 were treated at the same calendar time. In fact, treatment was assigned
 over a period of four quarters, as can be seen by tabulating the
 variable rarelqt. Explain briefly why this potentially poses a problem
 for the analysis above.</em></p></li>
-<li><p><em>To see how important this issue is in practice, re-estimate
-your event-study model using the Callaway-Sant’anna method. Note that
-rarelqt = 1 corresponds to 1994.II, that is, April-June</em></p></li>
-<li><p><em>Start by creating a variable showing which observations are
+</ol>
+<pre><code>## 
+##   2   3   4 
+## 366 467 316</code></pre>
+<p>We know that treatment effects are heterogenous across units and
+time. Groups randomized into treatment at different quarters are thus
+experiencing different time effects at each “period” of measured
+employment. For example, if someone is randomized into treatment in
+Quarter 2 (approximately August 1994), their employment outcomes in
+period 8 (8 quarters after randomization) would include the treatment
+effect and time-specific effects of August 1996 (plus fixed individual
+effects which are irrelevant here). However the period 8 employment
+outcomes of someone randomized into treatment in Quarter 4
+(approximately February 1995) would reflect the treatment effect and
+time-specific effects of February 1997. We cannot assume that the
+time-specific effects of August 1996 and February 1997 are the same;
+therefore, our analysis above does not accurately identify the average
+treatment effect. Rather, it conflates treatment effects with some
+time-specific influences.</p>
+<ol start="8" style="list-style-type: decimal">
+<li><em>To see how important this issue is in practice, re-estimate your
+event-study model using the Callaway-Sant’anna method. Note that rarelqt
+= 1 corresponds to 1994.II, that is, April-June</em></li>
+</ol>
+<pre><code>## Warning in compute.att_gt(dp): No units in group 2 in time period -10</code></pre>
+<pre><code>## Warning in compute.att_gt(dp): No available control units for group 2 in time
+## period 19</code></pre>
+<pre><code>## Warning in compute.att_gt(dp): No units in group 2 in time period 20</code></pre>
+<pre><code>## Warning in compute.att_gt(dp): No available control units for group 2 in time
+## period 20</code></pre>
+<pre><code>## Warning in compute.att_gt(dp): No units in group 2 in time period 21</code></pre>
+<pre><code>## Warning in compute.att_gt(dp): No available control units for group 2 in time
+## period 21</code></pre>
+<pre><code>## Warning in compute.att_gt(dp): No units in group 3 in time period -9</code></pre>
+<pre><code>## Warning in compute.att_gt(dp): No units in group 3 in time period -10</code></pre>
+<pre><code>## Warning in compute.att_gt(dp): No units in group 3 in time period -9</code></pre>
+<pre><code>## Warning in compute.att_gt(dp): No available control units for group 3 in time
+## period 19</code></pre>
+<pre><code>## Warning in compute.att_gt(dp): No available control units for group 3 in time
+## period 20</code></pre>
+<pre><code>## Warning in compute.att_gt(dp): No units in group 3 in time period 21</code></pre>
+<pre><code>## Warning in compute.att_gt(dp): No available control units for group 3 in time
+## period 21</code></pre>
+<pre><code>## Warning in compute.att_gt(dp): No units in group 4 in time period -9</code></pre>
+<pre><code>## Warning in compute.att_gt(dp): No units in group 4 in time period -10</code></pre>
+<pre><code>## Warning in compute.att_gt(dp): No units in group 4 in time period -8</code></pre>
+<pre><code>## Warning in compute.att_gt(dp): No units in group 4 in time period -9</code></pre>
+<pre><code>## Warning in compute.att_gt(dp): No units in group 4 in time period -8</code></pre>
+<pre><code>## Warning in compute.att_gt(dp): No available control units for group 4 in time
+## period 19</code></pre>
+<pre><code>## Warning in compute.att_gt(dp): No available control units for group 4 in time
+## period 20</code></pre>
+<pre><code>## Warning in compute.att_gt(dp): No available control units for group 4 in time
+## period 21</code></pre>
+<pre><code>## 
+## Call:
+## att_gt(yname = &quot;employment_status&quot;, tname = &quot;cal_quarter&quot;, idname = &quot;sampleid&quot;, 
+##     gname = &quot;rarelqt&quot;, data = dd8_data, panel = FALSE, control_group = &quot;notyettreated&quot;, 
+##     clustervars = &quot;sampleid&quot;, est_method = &quot;dr&quot;)
+## 
+## Reference: Callaway, Brantly and Pedro H.C. Sant&#39;Anna.  &quot;Difference-in-Differences with Multiple Time Periods.&quot; Journal of Econometrics, Vol. 225, No. 2, pp. 200-230, 2021. &lt;https://doi.org/10.1016/j.jeconom.2020.12.001&gt;, &lt;https://arxiv.org/abs/1803.09015&gt; 
+## 
+## Group-Time Average Treatment Effects:
+##  Group Time ATT(g,t) Std. Error [95% Simult.  Conf. Band]  
+##      2   -9       NA         NA            NA          NA  
+##      2   -8  -0.0103     0.0125       -0.0507      0.0301  
+##      2   -7  -0.0281     0.0102       -0.0610      0.0049  
+##      2   -6   0.0721     0.0301       -0.0256      0.1697  
+##      2   -5   0.0078     0.0265       -0.0782      0.0938  
+##      2   -4   0.0169     0.0244       -0.0620      0.0959  
+##      2   -3  -0.0387     0.0270       -0.1261      0.0486  
+##      2   -2   0.0006     0.0262       -0.0842      0.0853  
+##      2   -1  -0.0186     0.0271       -0.1064      0.0692  
+##      2    0   0.0499     0.0306       -0.0492      0.1490  
+##      2    1   0.0007     0.0322       -0.1037      0.1051  
+##      2    2  -0.0315     0.0321       -0.1357      0.0726  
+##      2    3   0.0083     0.0412       -0.1251      0.1417  
+##      2    4   0.0602     0.0455       -0.0871      0.2075  
+##      2    5   0.0191     0.0443       -0.1246      0.1627  
+##      2    6   0.0348     0.0514       -0.1316      0.2012  
+##      2    7  -0.0037     0.0501       -0.1659      0.1585  
+##      2    8   0.0863     0.0499       -0.0755      0.2481  
+##      2    9   0.1035     0.0498       -0.0579      0.2650  
+##      2   10   0.0938     0.0510       -0.0713      0.2589  
+##      2   11   0.0653     0.0513       -0.1009      0.2316  
+##      2   12   0.0763     0.0530       -0.0954      0.2480  
+##      2   13   0.0864     0.0555       -0.0934      0.2662  
+##      2   14   0.0941     0.0552       -0.0848      0.2730  
+##      2   15   0.0464     0.0544       -0.1297      0.2225  
+##      2   16   0.0695     0.0584       -0.1196      0.2587  
+##      2   17   0.0779     0.0533       -0.0947      0.2504  
+##      2   18  -0.0151     0.0483       -0.1715      0.1412  
+##      2   19       NA         NA            NA          NA  
+##      2   20       NA         NA            NA          NA  
+##      2   21       NA         NA            NA          NA  
+##      3   -9       NA         NA            NA          NA  
+##      3   -8       NA         NA            NA          NA  
+##      3   -7  -0.0285     0.0109       -0.0639      0.0068  
+##      3   -6   0.1592     0.0303        0.0612      0.2572 *
+##      3   -5  -0.0247     0.0241       -0.1027      0.0533  
+##      3   -4  -0.0471     0.0265       -0.1331      0.0389  
+##      3   -3   0.0108     0.0257       -0.0726      0.0942  
+##      3   -2  -0.0076     0.0288       -0.1008      0.0857  
+##      3   -1  -0.0089     0.0230       -0.0833      0.0655  
+##      3    0  -0.0130     0.0287       -0.1060      0.0800  
+##      3    1   0.0355     0.0261       -0.0489      0.1200  
+##      3    2   0.0005     0.0298       -0.0961      0.0972  
+##      3    3   0.0336     0.0322       -0.0707      0.1379  
+##      3    4   0.1209     0.0394       -0.0067      0.2485  
+##      3    5   0.1013     0.0430       -0.0380      0.2405  
+##      3    6   0.0341     0.0414       -0.1002      0.1683  
+##      3    7   0.0088     0.0437       -0.1327      0.1502  
+##      3    8   0.1225     0.0437       -0.0192      0.2642  
+##      3    9   0.1018     0.0451       -0.0444      0.2480  
+##      3   10   0.1166     0.0445       -0.0277      0.2608  
+##      3   11   0.0763     0.0487       -0.0815      0.2341  
+##      3   12   0.1118     0.0494       -0.0483      0.2719  
+##      3   13   0.0967     0.0492       -0.0627      0.2561  
+##      3   14   0.0943     0.0457       -0.0537      0.2422  
+##      3   15   0.0432     0.0502       -0.1195      0.2058  
+##      3   16   0.0583     0.0511       -0.1071      0.2237  
+##      3   17   0.0151     0.0503       -0.1478      0.1781  
+##      3   18   0.0357     0.0488       -0.1225      0.1938  
+##      3   19       NA         NA            NA          NA  
+##      3   20       NA         NA            NA          NA  
+##      3   21       NA         NA            NA          NA  
+##      4   -9       NA         NA            NA          NA  
+##      4   -8       NA         NA            NA          NA  
+##      4   -7       NA         NA            NA          NA  
+##      4   -6   0.1159     0.0339        0.0060      0.2259 *
+##      4   -5   0.0364     0.0306       -0.0627      0.1355  
+##      4   -4   0.0313     0.0314       -0.0703      0.1329  
+##      4   -3   0.0642     0.0331       -0.0429      0.1713  
+##      4   -2  -0.0721     0.0322       -0.1765      0.0322  
+##      4   -1  -0.0255     0.0302       -0.1233      0.0723  
+##      4    0   0.0078     0.0332       -0.0996      0.1153  
+##      4    1  -0.0135     0.0368       -0.1329      0.1059  
+##      4    2  -0.0109     0.0321       -0.1148      0.0930  
+##      4    3  -0.0344     0.0372       -0.1550      0.0862  
+##      4    4   0.1058     0.0386       -0.0192      0.2309  
+##      4    5   0.1174     0.0477       -0.0371      0.2719  
+##      4    6   0.0630     0.0476       -0.0911      0.2170  
+##      4    7   0.0505     0.0454       -0.0967      0.1976  
+##      4    8   0.1111     0.0515       -0.0559      0.2780  
+##      4    9   0.1508     0.0551       -0.0276      0.3293  
+##      4   10   0.1803     0.0522        0.0112      0.3494 *
+##      4   11   0.1308     0.0536       -0.0429      0.3046  
+##      4   12   0.1535     0.0544       -0.0226      0.3296  
+##      4   13   0.1164     0.0595       -0.0764      0.3092  
+##      4   14   0.1287     0.0576       -0.0581      0.3154  
+##      4   15   0.1087     0.0552       -0.0702      0.2876  
+##      4   16   0.1678     0.0545       -0.0087      0.3443  
+##      4   17   0.1210     0.0540       -0.0539      0.2958  
+##      4   18   0.0591     0.0547       -0.1181      0.2363  
+##      4   19       NA         NA            NA          NA  
+##      4   20       NA         NA            NA          NA  
+##      4   21       NA         NA            NA          NA  
+## ---
+## Signif. codes: `*&#39; confidence band does not cover 0
+## 
+## P-value for pre-test of parallel trends assumption:  0
+## Control Group:  Not Yet Treated,  Anticipation Periods:  0
+## Estimation Method:  Doubly Robust</code></pre>
+<ol start="9" style="list-style-type: decimal">
+<li><em>Start by creating a variable showing which observations are
 first treated in each calendar quarter. Call it racalqt. Tabulate it and
 comment on the share of observations that is first assigned to treatment
-in each quarter.</em></p></li>
-<li><p><em>Calculate ATT(g, t) for each value of g and t = 1994.II to
+in each quarter.</em></li>
+</ol>
+<pre><code>## # A tibble: 4 × 3
+##   racalqt           n share
+##   &lt;chr&gt;         &lt;int&gt; &lt;dbl&gt;
+## 1 1994.III       6119 0.184
+## 2 1994.IV        7917 0.238
+## 3 1995.I         5278 0.158
+## 4 Never Treated 14007 0.420</code></pre>
+<p>24% of observations are assigned to treatment during the 4th quarter
+of 1994. 18% are assigned to treatment during the 3rd quarter of 1994,
+while only 16% are assigned to treatment during the 1st quarter of 1995.
+42% are never assigned to treatment.</p>
+<ol start="10" style="list-style-type: decimal">
+<li><em>Calculate ATT(g, t) for each value of g and t = 1994.II to
 1997.II. How similar are the estimated effects of treatment for the four
-groups?</em></p></li>
+groups?</em></li>
+</ol>
+<pre><code>##         term group     time      estimate
+## 1   ATT(2,0)     2  1994.II  0.0498842955
+## 2   ATT(2,1)     2 1994.III  0.0007174689
+## 3   ATT(2,2)     2  1994.IV -0.0315079983
+## 4   ATT(2,3)     2   1995.I  0.0082956206
+## 5   ATT(2,4)     2  1995.II  0.0601885922
+## 6   ATT(2,5)     2 1995.III  0.0190554689
+## 7   ATT(2,6)     2  1995.IV  0.0347943834
+## 8   ATT(2,7)     2   1996.I -0.0036697968
+## 9   ATT(2,8)     2  1996.II  0.0863285351
+## 10  ATT(2,9)     2 1996.III  0.1035392933
+## 11 ATT(2,10)     2  1996.IV  0.0937858762
+## 12 ATT(2,11)     2   1997.I  0.0653498572
+## 13 ATT(2,12)     2  1997.II  0.0763003738
+## 14  ATT(3,0)     3  1994.II -0.0129835918
+## 15  ATT(3,1)     3 1994.III  0.0355386623
+## 16  ATT(3,2)     3  1994.IV  0.0005398111
+## 17  ATT(3,3)     3   1995.I  0.0336225178
+## 18  ATT(3,4)     3  1995.II  0.1208791209
+## 19  ATT(3,5)     3 1995.III  0.1012900143
+## 20  ATT(3,6)     3  1995.IV  0.0340818602
+## 21  ATT(3,7)     3   1996.I  0.0087593566
+## 22  ATT(3,8)     3  1996.II  0.1224717312
+## 23  ATT(3,9)     3 1996.III  0.1017677974
+## 24 ATT(3,10)     3  1996.IV  0.1165790731
+## 25 ATT(3,11)     3   1997.I  0.0762860328
+## 26 ATT(3,12)     3  1997.II  0.1118012422
+## 27  ATT(4,0)     4  1994.II  0.0078241304
+## 28  ATT(4,1)     4 1994.III -0.0135061423
+## 29  ATT(4,2)     4  1994.IV -0.0108872609
+## 30  ATT(4,3)     4   1995.I -0.0344003822
+## 31  ATT(4,4)     4  1995.II  0.1058289537
+## 32  ATT(4,5)     4 1995.III  0.1173753782
+## 33  ATT(4,6)     4  1995.IV  0.0629877369
+## 34  ATT(4,7)     4   1996.I  0.0504857461
+## 35  ATT(4,8)     4  1996.II  0.1110845676
+## 36  ATT(4,9)     4 1996.III  0.1508201943
+## 37 ATT(4,10)     4  1996.IV  0.1802834846
+## 38 ATT(4,11)     4   1997.I  0.1308329352
+## 39 ATT(4,12)     4  1997.II  0.1535276318</code></pre>
+<ol start="11" style="list-style-type: decimal">
 <li><p><em>Now calculate and plot period-specific treatment effects in
 units of time relative to the treatment quarter, also known as elapsed
 time and denoted by e. Do this for e=1,…,8.</em></p></li>
